@@ -7,3 +7,6 @@ gFunction
 infiniteLineSource
 shaGFunction
 timeGeometric
+finiteCylindricalHeatSource
+gFunction2
+shaGFunction2

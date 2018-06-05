@@ -1,6 +1,5 @@
 within IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.GroundHeatTransfer.Validation;
-model LoadAggregation_1Week
-  "Short term validation of load aggregation model"
+model LoadAggregation_1Week2 "Short term validation of load aggregation model"
   import IBPSA;
   extends Modelica.Icons.Example;
 
@@ -21,12 +20,7 @@ model LoadAggregation_1Week
     annotation (Placement(transformation(extent={{-50,50},{-30,70}})));
 
   parameter IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.Data.BorefieldData.Template
-    borFieDat(conDat(
-      hBor=100,
-      rBor=0.05,
-      dBor=4,
-      nbBh=1,
-      cooBh={{0,0}}),
+    borFieDat(
     soiDat(
       k=1,
       c=1,
@@ -35,7 +29,13 @@ model LoadAggregation_1Week
       k=0,
       c=Modelica.Constants.small,
       d=Modelica.Constants.small,
-      steadyState=true))
+      steadyState=true),
+    conDat(
+      hBor=100,
+      rBor=0.05,
+      dBor=4,
+      nbBh=2,
+      cooBh={{0,0},{1,1}}))
               "Borefield parameters"
     annotation (Placement(transformation(extent={{-100,-100},{-80,-80}})));
 
@@ -47,10 +47,12 @@ model LoadAggregation_1Week
   Modelica.Thermal.HeatTransfer.Sources.PrescribedHeatFlow preHeaFlo1
     "Prescribed heat flow to soil"
     annotation (Placement(transformation(extent={{-50,-70},{-30,-50}})));
-  GroundHeatTransfer.GroundTemperatureResponse groTemRes(
+  IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.GroundHeatTransfer.GroundTemperatureResponse_r
+    groTemRes(
     borFieDat=borFieDat,
     p_max=5,
-    tLoaAgg=300) "Heat conduction in the soil"
+    tLoaAgg=300,
+    r=borFieDat.conDat.rBor) "Heat conduction in the soil"
     annotation (Placement(transformation(extent={{8,-70},{-12,-50}})));
   Modelica.Blocks.Sources.Constant groTem(k=283.15) "Ground temperature"
     annotation (Placement(transformation(extent={{88,-10},{68,10}})));
@@ -99,4 +101,4 @@ equation
             -100},{100,100}})),
     experiment(StopTime=187200),
     __Dymola_experimentSetupOutput);
-end LoadAggregation_1Week;
+end LoadAggregation_1Week2;
