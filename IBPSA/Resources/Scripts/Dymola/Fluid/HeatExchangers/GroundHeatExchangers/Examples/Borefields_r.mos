@@ -1,0 +1,5 @@
+simulateModel("IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.Examples.Borefields_r", startTime=0, method="dassl", tolerance=1e-6, stopTime=3600000, resultFile="Borefields_r");
+removePlots();
+createPlot(id=1, position={0, 0, 1377, 734}, y={"borFieUTub.TSoi[1]", "borFieUTub.TSoi[2]", "borFieUTub.TSoi[3]", 
+"borFieUTub.TSoi[4]", "borFieUTub.borHol.port_wall[1].T"}, range={0.0, 3600000.0, 9.0, 29.0}, grid=true, colors={{28,108,200}, {238,46,47}, {0,140,72}, {217,67,180}, {0,0,0}},filename="Borefields_r.mat");
+

@@ -36,6 +36,7 @@ model BorefieldOneUTube
     allowFlowReversal=allowFlowReversal,
     k=borFieDat.conDat.nbBh) "Mass flow multiplier"
     annotation (Placement(transformation(extent={{60,-10},{80,10}})));
+  replaceable
   GroundHeatTransfer.GroundTemperatureResponse groTemRes(
     tLoaAgg=tLoaAgg,
     p_max=p_max,
@@ -87,7 +88,7 @@ equation
   connect(masFloDiv.port_a, borHol.port_a)
     annotation (Line(points={{-60,0},{-24,0}}, color={0,127,255}));
   connect(TGro, groTemRes.Tg)
-    annotation (Line(points={{-120,60},{-82,60},{-82,60}}, color={0,0,127}));
+    annotation (Line(points={{-120,60},{-82,60}},          color={0,0,127}));
   annotation (
     experiment(StopTime=70000, __Dymola_NumberOfIntervals=50),
     __Dymola_experimentSetupOutput,

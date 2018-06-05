@@ -1,6 +1,7 @@
 within IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.GroundHeatTransfer;
 model CylindricalGroundLayer
   "Heat conduction in a cylinder using the radial discretization as advised by Eskilson"
+
   parameter Data.SoilData.Template soiDat
     annotation (Placement(transformation(extent={{-100,-100},{-80,-80}})));
   parameter Modelica.SIunits.Height h "Height of the cylinder";
@@ -38,10 +39,10 @@ model CylindricalGroundLayer
   parameter Modelica.SIunits.Radius r[nSta + 1](each fixed=false)
     "Radius to the boundary of the i-th domain";
 
-protected
+
   parameter Modelica.SIunits.Radius rC[nSta](each fixed=false)
     "Radius to the center of the i-th domain";
-
+protected
   final parameter Modelica.SIunits.SpecificHeatCapacity c=soiDat.c
     "Specific heat capacity";
   final parameter Modelica.SIunits.ThermalConductivity k=soiDat.k

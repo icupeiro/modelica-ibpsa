@@ -34,8 +34,7 @@ algorithm
     ts := hBor^2/(9*as);
 
     (lntts,gFun) :=
-      IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.GroundHeatTransfer.ThermalResponseFactors.gFunction2
-      (
+      IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.GroundHeatTransfer.ThermalResponseFactors.gFunction2(
       hBor,
       dBor,
       rBor,

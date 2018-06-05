@@ -1,6 +1,7 @@
 within IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.GroundHeatTransfer;
 model GroundTemperatureResponse_r "Model calculating discrete load aggregation"
-  parameter Modelica.SIunits.Distance r=10 "Radial distance from borehole wall at which the soil temperature is evaluated";
+  parameter Modelica.SIunits.Distance r[:]
+    "Radial distance from borehole wall at which the soil temperature is evaluated";
   parameter Modelica.SIunits.Time tLoaAgg=3600
     "Time resolution of load aggregation";
   parameter Integer p_max(min=1) = 5 "Number of cells per aggregation level";
@@ -19,7 +20,7 @@ model GroundTemperatureResponse_r "Model calculating discrete load aggregation"
     "Heat port for resulting borehole wall conditions"
     annotation (Placement(transformation(extent={{90,-10},{110,10}})));
 
-//protected
+  //protected
   parameter Integer nbTimSho=26 "Number of time steps in short time region";
   parameter Integer nbTimLon=50 "Number of time steps in long time region";
   parameter Real ttsMax=exp(5)
@@ -31,12 +32,12 @@ model GroundTemperatureResponse_r "Model calculating discrete load aggregation"
       dBor=borFieDat.conDat.dBor,
       rBor=borFieDat.conDat.rBor,
       alpha=borFieDat.soiDat.alp) "String with encrypted g-function arguments";
-  parameter String SHAgfun2=ThermalResponseFactors.shaGFunction2(
-      r = r,
+  parameter String SHAgfun_r[nbTem]={ThermalResponseFactors.shaGFunction2(
+      r=r_int[j],
       hBor=borFieDat.conDat.hBor,
       dBor=borFieDat.conDat.dBor,
       rBor=borFieDat.conDat.rBor,
-      alpha=borFieDat.soiDat.alp) "String with encrypted g-function arguments";
+      alpha=borFieDat.soiDat.alp)  for j in 1:nbTem} "String with encrypted g-function arguments";
   parameter Integer nrow=nbTimSho + nbTimLon - 1 "Length of g-function matrix";
   parameter Real lvlBas=2 "Base for exponential cell growth between levels";
   parameter Modelica.SIunits.Time timFin=(borFieDat.conDat.hBor^2/(9*borFieDat.soiDat.alp))
@@ -62,58 +63,68 @@ model GroundTemperatureResponse_r "Model calculating discrete load aggregation"
       ttsMax=ttsMax)
     "g-function input from mat, with the second column as temperature Tstep";
 
-  parameter Real timSer_r[nrow + 1,2]=LoadAggregation.timSerMat2(
+  parameter Real timSer_r[nbTem, nrow + 1,2]={LoadAggregation.timSerMat2(
       borFieDat.conDat.hBor,
       borFieDat.conDat.dBor,
       borFieDat.conDat.rBor,
-      r,
+      r_int[j],
       borFieDat.soiDat.alp,
       borFieDat.soiDat.k,
       nrow,
-      SHAgfun2,
+      SHAgfun_r[j],
       forceGFunCalc,
-      ttsMax=ttsMax)
+      nbTimSho + nbTimLon - 1,
+      ttsMax) for j in 1:nbTem}
     "g-function input from mat, with the second column as temperature Tstep";
-
+protected
+  final parameter Real r_int[nbTem]=cat(1,{borFieDat.conDat.rBor},r);
+  final parameter Integer nbTem=size(r,1)+1 "Number of soil temperature";
   final parameter Modelica.SIunits.Time t0(fixed=false) "Simulation start time";
   final parameter Modelica.SIunits.Time[i] nu(fixed=false)
     "Time vector for load aggregation";
   final parameter Real[i] kappa(fixed=false)
     "Weight factor for each aggregation cell";
-  final parameter Real[i] kappa_r(fixed=false)
+  final parameter Real[nbTem,i] kappa_r(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(fixed=false) "Cell widths";
   Modelica.SIunits.HeatFlowRate[i] Q_i "Q_bar vector of size i";
   Modelica.SIunits.HeatFlowRate[i] Q_shift "Shifted Q_bar vector of size i";
   Integer curCel "Current occupied cell";
   Modelica.SIunits.TemperatureDifference deltaTb "Tb-Tg";
-  Modelica.SIunits.TemperatureDifference deltaTr "Tr-Tg";
+  Modelica.SIunits.TemperatureDifference deltaTr[nbTem] "Tr-Tg";
   Real delTbs "Wall temperature change from previous time steps";
-  Real delTrs "Wall temperature change from previous time steps";
+  Real delTrs[nbTem] "Wall temperature change from previous time steps";
   Real derDelTbs
     "Derivative of wall temperature change from previous time steps";
-  Real derDelTrs
+  Real derDelTrs[nbTem]
     "Derivative of wall temperature change from previous time steps";
   Real delTbOld "Tb-Tg at previous time step";
-  Real delTrOld "Tb-Tg at previous time step";
+  Real delTrOld[nbTem] "Tb-Tg at previous time step";
   final parameter Real dhdt(fixed=false)
     "Time derivative of g/(2*pi*H*ks) within most recent cell";
-//protected
+  final parameter Real dhdt_r[nbTem]( each fixed=false)
+    "Time derivative of g/(2*pi*H*ks) within most recent cell";
+  //protected
   Modelica.SIunits.HeatFlowRate QTot=Tb.Q_flow*borFieDat.conDat.nbBh
     "Totat heat flow from all boreholes";
+  Real Tr[nbTem];
 public
-  Modelica.Blocks.Interfaces.RealOutput Tr(start=Tg, unit="K", displayUnit="degC")
-    annotation (Placement(transformation(
-        extent={{-10,-10},{10,10}},
-        rotation=90,
-        origin={0,110})));
+  Modelica.Blocks.Interfaces.RealOutput TSoi[nbTem-1](
+    unit="K",
+    displayUnit="degC") = Tr[2:nbTem]
+    annotation (Placement(transformation(extent={{100,-70},{120,-50}})));
 initial equation
   Q_i = zeros(i);
   curCel = 1;
   deltaTb = 0;
-  deltaTr = 0;
   Q_shift = Q_i;
   delTbs = 0;
+
+  for j in 1:nbTem loop
+    deltaTr[j] = 0;
+    delTrs[j] = 0;
+    Tr[j] = Tg;
+  end for;
 
   (nu,rCel) = LoadAggregation.timAgg(
     i=i,
@@ -129,18 +140,25 @@ initial equation
     nrow=nrow,
     TStep=timSer,
     nu=nu);
-  kappa_r = LoadAggregation.kapAgg(
+  kappa_r = {LoadAggregation.kapAgg(
     i=i,
     nrow=nrow,
-    TStep=timSer_r,
-    nu=nu);
+    TStep=timSer_r[j,:,:],
+    nu=nu) for j in 1:nbTem};
   dhdt = kappa[1]/tLoaAgg;
+  dhdt_r = {kappa_r[j,1]/tLoaAgg for j in 1:nbTem};
 
 equation
   der(deltaTb) = dhdt*QTot + derDelTbs;
-  der(deltaTr) = dhdt*QTot + derDelTrs;
   deltaTb = Tb.T - Tg;
-  deltaTr = Tr - Tg;
+  for j in 1:nbTem loop
+    der(deltaTr[j]) = dhdt_r[j]*QTot + derDelTrs[j];
+    if j==1 then
+      deltaTr[j] = Tr[j] - Tg;
+    else
+      deltaTr[j] = Tr[j] - Tg - (Tr[1] - Tb.T);
+    end if;
+  end for;
 
   when (sample(t0, tLoaAgg)) then
     (curCel,Q_shift) = LoadAggregation.nextTimeStep(
@@ -161,17 +179,21 @@ equation
       kappa=kappa,
       curCel=curCel);
 
-    delTrs = LoadAggregation.tempSuperposition(
-      i=i,
-      Q_i=Q_shift,
-      kappa=kappa_r,
-      curCel=curCel);
+
 
     delTbOld = Tb.T - Tg;
-    delTrOld = Tr - Tg;
 
     derDelTbs = (delTbs - delTbOld)/tLoaAgg;
-    derDelTrs = (delTrs - delTrOld)/tLoaAgg;
+
+   for  j in 1:nbTem loop
+      delTrs[j] = LoadAggregation.tempSuperposition(
+        i=i,
+        Q_i=Q_shift,
+        kappa=kappa_r[j,:],
+        curCel=curCel);
+      delTrOld[j] = Tr[j] - Tg;
+      derDelTrs[j] = (delTrs[j] - delTrOld[j])/tLoaAgg;
+   end for;
   end when;
 
   assert((time - t0) <= timFin, "The g-function input file does not cover the entire simulation length.");

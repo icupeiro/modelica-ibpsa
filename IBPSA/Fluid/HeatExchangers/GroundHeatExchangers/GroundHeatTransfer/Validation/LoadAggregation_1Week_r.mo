@@ -1,5 +1,5 @@
 within IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.GroundHeatTransfer.Validation;
-model LoadAggregation_1Week2 "Short term validation of load aggregation model"
+model LoadAggregation_1Week_r "Short term validation of load aggregation model"
   import IBPSA;
   extends Modelica.Icons.Example;
 
@@ -34,8 +34,8 @@ model LoadAggregation_1Week2 "Short term validation of load aggregation model"
       hBor=100,
       rBor=0.05,
       dBor=4,
-      nbBh=2,
-      cooBh={{0,0},{1,1}}))
+      nbBh=1,
+      cooBh={{0,0}}))
               "Borefield parameters"
     annotation (Placement(transformation(extent={{-100,-100},{-80,-80}})));
 
@@ -52,7 +52,7 @@ model LoadAggregation_1Week2 "Short term validation of load aggregation model"
     borFieDat=borFieDat,
     p_max=5,
     tLoaAgg=300,
-    r=borFieDat.conDat.rBor) "Heat conduction in the soil"
+    r=soi.rC)                "Heat conduction in the soil"
     annotation (Placement(transformation(extent={{8,-70},{-12,-50}})));
   Modelica.Blocks.Sources.Constant groTem(k=283.15) "Ground temperature"
     annotation (Placement(transformation(extent={{88,-10},{68,10}})));
@@ -100,5 +100,8 @@ equation
   annotation (Diagram(coordinateSystem(preserveAspectRatio=false, extent={{-100,
             -100},{100,100}})),
     experiment(StopTime=187200),
-    __Dymola_experimentSetupOutput);
-end LoadAggregation_1Week2;
+    __Dymola_experimentSetupOutput,
+    __Dymola_Commands(file=
+          "Resources/Scripts/Dymola/Fluid/HeatExchangers/GroundHeatExchangers/GroundHeatTransfer/Validation/LoadAggregation_1Week_r.mos"
+        "Simulate and plot"));
+end LoadAggregation_1Week_r;

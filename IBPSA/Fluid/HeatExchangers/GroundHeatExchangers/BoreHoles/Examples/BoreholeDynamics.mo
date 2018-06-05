@@ -137,8 +137,8 @@ model BoreholeDynamics
         Medium, m_flow_nominal=borFie2UTubDat.conDat.m_flow_nominal_bh)
     "Inlet borehole temperature"
     annotation (Placement(transformation(extent={{-40,-70},{-20,-50}})));
-  IBPSA.Fluid.Sensors.TemperatureTwoPort TBor2UTubDyn(redeclare package Medium
-      = Medium, m_flow_nominal=borFie2UTubDat.conDat.m_flow_nominal_bh)
+  IBPSA.Fluid.Sensors.TemperatureTwoPort TBor2UTubDyn(redeclare package Medium =
+        Medium, m_flow_nominal=borFie2UTubDat.conDat.m_flow_nominal_bh)
     "Outlet borehole temperature"
     annotation (Placement(transformation(extent={{20,-70},{40,-50}})));
   IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.GroundHeatTransfer.GroundTemperatureResponse
