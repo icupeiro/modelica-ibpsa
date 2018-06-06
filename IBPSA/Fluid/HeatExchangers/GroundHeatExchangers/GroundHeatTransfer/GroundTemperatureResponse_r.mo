@@ -108,6 +108,8 @@ protected
   Modelica.SIunits.HeatFlowRate QTot=Tb.Q_flow*borFieDat.conDat.nbBh
     "Totat heat flow from all boreholes";
   Real Tr[nbTem];
+  Modelica.SIunits.Heat U "Accumulated heat flow from all boreholes";
+  discrete Modelica.SIunits.Heat UOld "Accumulated heat flow from all boreholes at last aggregation step";
 public
   Modelica.Blocks.Interfaces.RealOutput TSoi[nbTem-1](
     unit="K",
@@ -119,6 +121,9 @@ initial equation
   deltaTb = 0;
   Q_shift = Q_i;
   delTbs = 0;
+
+  U = 0;
+  UOld = 0;
 
   for j in 1:nbTem loop
     deltaTr[j] = 0;
@@ -151,6 +156,7 @@ initial equation
 equation
   der(deltaTb) = dhdt*QTot + derDelTbs;
   deltaTb = Tb.T - Tg;
+  der(U) = QTot;
   for j in 1:nbTem loop
     der(deltaTr[j]) = dhdt_r[j]*QTot + derDelTrs[j];
     if j==1 then
@@ -168,9 +174,10 @@ equation
       nu=nu,
       curTim=(time - t0));
 
+    UOld = U;
     Q_i = LoadAggregation.setCurLoa(
       i=i,
-      Qb=QTot,
+      Qb=(U-pre(UOld))/tLoaAgg,
       Q_shift=Q_shift);
 
     delTbs = LoadAggregation.tempSuperposition(
