@@ -4,7 +4,7 @@ model Borefields_r
 extends Modelica.Icons.Example;
   package Medium = IBPSA.Media.Water;
 
-  parameter Modelica.SIunits.Time tLoaAgg=60
+  parameter Modelica.SIunits.Time tLoaAgg=300
     "Time resolution of load aggregation";
 
   Data.BorefieldData.ExampleBorefieldData borFieUTubDat(conDat=
