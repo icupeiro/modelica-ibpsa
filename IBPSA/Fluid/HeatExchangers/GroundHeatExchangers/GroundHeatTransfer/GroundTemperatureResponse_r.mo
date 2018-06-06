@@ -113,7 +113,7 @@ protected
 public
   Modelica.Blocks.Interfaces.RealOutput TSoi[nbTem-1](
     unit="K",
-    displayUnit="degC") = Tr[2:nbTem]
+    displayUnit="degC")
     annotation (Placement(transformation(extent={{100,-70},{120,-50}})));
 initial equation
   Q_i = zeros(i);
@@ -159,11 +159,10 @@ equation
   der(U) = QTot;
   for j in 1:nbTem loop
     der(deltaTr[j]) = dhdt_r[j]*QTot + derDelTrs[j];
-    if j==1 then
-      deltaTr[j] = Tr[j] - Tg;
-    else
-      deltaTr[j] = Tr[j] - Tg - (Tr[1] - Tb.T);
-    end if;
+    deltaTr[j] = Tr[j] - Tg;
+  end for;
+  for j in 1:nbTem-1 loop
+    TSoi[j] = Tr[j+1] + (Tb.T - Tr[1]);
   end for;
 
   when (sample(t0, tLoaAgg)) then
