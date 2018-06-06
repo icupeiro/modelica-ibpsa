@@ -19,8 +19,8 @@ extends Modelica.Icons.Example;
     borFieDat=borFieUTubDat,
     tLoaAgg=tLoaAgg,
     dynFil=false,
-    r={borFieUTubDat.conDat.rBor*2,borFieUTubDat.conDat.rBor*4,borFieUTubDat.conDat.rBor
-        *8,borFieUTubDat.conDat.rBor*16})
+    r={borFieUTubDat.conDat.rBor,borFieUTubDat.conDat.rBor*2,borFieUTubDat.conDat.rBor
+        *4,borFieUTubDat.conDat.rBor*8,borFieUTubDat.conDat.rBor*16})
                 "Borefield with a U-tube borehole configuration"
     annotation (Placement(transformation(extent={{-22,-78},{20,-42}})));
   Sources.MassFlowSource_T sou(
