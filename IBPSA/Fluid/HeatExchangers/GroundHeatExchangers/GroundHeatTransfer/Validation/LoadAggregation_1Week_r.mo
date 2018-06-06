@@ -31,7 +31,7 @@ model LoadAggregation_1Week_r "Short term validation of load aggregation model"
       d=Modelica.Constants.small,
       steadyState=true),
     conDat(
-      hBor=100,
+      hBor=1e6,
       rBor=0.05,
       dBor=4,
       nbBh=1,
@@ -40,9 +40,9 @@ model LoadAggregation_1Week_r "Short term validation of load aggregation model"
     annotation (Placement(transformation(extent={{-100,-100},{-80,-80}})));
 
   Modelica.Blocks.Sources.Sine sine(
-    amplitude=10000,
     freqHz=1/(24*3600),
-    startTime=21600)
+    startTime=21600,
+    amplitude=1e8)
     annotation (Placement(transformation(extent={{-92,-10},{-72,10}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedHeatFlow preHeaFlo1
     "Prescribed heat flow to soil"
