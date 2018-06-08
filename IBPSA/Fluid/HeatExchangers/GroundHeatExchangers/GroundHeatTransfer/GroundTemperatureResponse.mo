@@ -28,7 +28,12 @@ protected
       hBor=borFieDat.conDat.hBor,
       dBor=borFieDat.conDat.dBor,
       rBor=borFieDat.conDat.rBor,
-      alpha=borFieDat.soiDat.alp) "String with encrypted g-function arguments";
+      alpha=borFieDat.soiDat.alp,
+      nbSeg=12,
+      nbTimSho=26,
+      nbTimLon=50,
+      relTol=0.02,
+      ttsMax=exp(5)) "String with encrypted g-function arguments";
   parameter Integer nrow = nbTimSho+nbTimLon-1
     "Length of g-function matrix";
   parameter Real lvlBas = 2 "Base for exponential cell growth between levels";
@@ -74,12 +79,16 @@ protected
     "Time derivative of g/(2*pi*H*ks) within most recent cell";
 protected
   Modelica.SIunits.HeatFlowRate QTot = Tb.Q_flow*borFieDat.conDat.nbBh "Totat heat flow from all boreholes";
+  Modelica.SIunits.Heat U "Accumulated heat flow from all boreholes";
+  discrete Modelica.SIunits.Heat UOld "Accumulated heat flow from all boreholes at last aggregation step";
 initial equation
   Q_i = zeros(i);
   curCel = 1;
   deltaTb = 0;
   Q_shift = Q_i;
   delTbs = 0;
+  U = 0;
+  UOld = 0;
 
   (nu,rCel) = LoadAggregation.timAgg(
     i=i,
@@ -101,19 +110,21 @@ initial equation
 equation
   der(deltaTb) = dhdt*QTot + derDelTbs;
   deltaTb = Tb.T-Tg;
+  der(U) = QTot;
 
   when (sample(t0, tLoaAgg)) then
     (curCel,Q_shift) = LoadAggregation.nextTimeStep(
       i=i,
-      Q_i=pre(Q_i),
+      Q_i=Q_i,
       rCel=rCel,
       nu=nu,
       curTim=(time - t0));
 
+    UOld = U;
     Q_i = LoadAggregation.setCurLoa(
       i=i,
-      Qb=QTot,
-      Q_shift=Q_shift);
+      Qb=(U-pre(UOld))/tLoaAgg,
+      Q_shift=pre(Q_shift));
 
     delTbs = LoadAggregation.tempSuperposition(
       i=i,

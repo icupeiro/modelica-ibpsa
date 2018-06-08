@@ -1,6 +1,6 @@
 within IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.GroundHeatTransfer.ThermalResponseFactors;
 function shaGFunction
-  "Return a pseudo sha code of the formatted arguments for the g-function generation"
+  "Returns a SHA1 encryption of the formatted arguments for the g-function generation"
   extends Modelica.Icons.Function;
   input Integer nbBor "Number of boreholes";
   input Real cooBor[nbBor, 2] "Coordinates of boreholes";
@@ -8,9 +8,14 @@ function shaGFunction
   input Real dBor "Borehole buried depth";
   input Real rBor "Borehole radius";
   input Real alpha "Ground thermal diffusivity used in g-function evaluation";
+  input Integer nbSeg "Number of line source segments per borehole";
+  input Integer nbTimSho "Number of time steps in short time region";
+  input Integer nbTimLon "Number of time steps in long time region";
+  input Real relTol "Relative tolerance on distance between boreholes";
+  input Real ttsMax "Maximum adimensional time for gfunc calculation";
 
   output String sha
-  "Pseudo sha code of the g-function arguments";
+  "SHA1 encryption of the g-function arguments";
 
 protected
   String shaStr =  "";
@@ -26,6 +31,11 @@ algorithm
   shaStr := shaStr + String(dBor, format=formatStr);
   shaStr := shaStr + String(rBor, format=formatStr);
   shaStr := shaStr + String(alpha, format=formatStr);
+  shaStr := shaStr + String(nbSeg, format=formatStr);
+  shaStr := shaStr + String(nbTimSho, format=formatStr);
+  shaStr := shaStr + String(nbTimLon, format=formatStr);
+  shaStr := shaStr + String(relTol, format=formatStr);
+  shaStr := shaStr + String(ttsMax, format=formatStr);
 
-  sha := IBPSA.Utilities.Cryptographics.BaseClasses.sha(shaStr);
+  sha := IBPSA.Utilities.Cryptographics.sha(shaStr);
 end shaGFunction;

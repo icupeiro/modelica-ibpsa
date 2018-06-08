@@ -21,12 +21,7 @@ model LoadAggregation_1Week
     annotation (Placement(transformation(extent={{-50,50},{-30,70}})));
 
   parameter IBPSA.Fluid.HeatExchangers.GroundHeatExchangers.Data.BorefieldData.Template
-    borFieDat(conDat(
-      hBor=100,
-      rBor=0.05,
-      dBor=4,
-      nbBh=1,
-      cooBh={{0,0}}),
+    borFieDat(
     soiDat(
       k=1,
       c=1,
@@ -35,14 +30,20 @@ model LoadAggregation_1Week
       k=0,
       c=Modelica.Constants.small,
       d=Modelica.Constants.small,
-      steadyState=true))
+      steadyState=true),
+    conDat(
+      hBor=1e6,
+      rBor=0.05,
+      dBor=4,
+      nbBh=1,
+      cooBh={{0,0}}))
               "Borefield parameters"
     annotation (Placement(transformation(extent={{-100,-100},{-80,-80}})));
 
   Modelica.Blocks.Sources.Sine sine(
-    amplitude=10000,
     freqHz=1/(24*3600),
-    startTime=21600)
+    startTime=21600,
+    amplitude=1e8)
     annotation (Placement(transformation(extent={{-92,-10},{-72,10}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedHeatFlow preHeaFlo1
     "Prescribed heat flow to soil"
