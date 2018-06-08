@@ -31,7 +31,12 @@ model GroundTemperatureResponse_r "Model calculating discrete load aggregation"
       hBor=borFieDat.conDat.hBor,
       dBor=borFieDat.conDat.dBor,
       rBor=borFieDat.conDat.rBor,
-      alpha=borFieDat.soiDat.alp) "String with encrypted g-function arguments";
+      alpha=borFieDat.soiDat.alp,
+      nbSeg=12,
+      nbTimSho=26,
+      nbTimLon=50,
+      relTol=0.02,
+      ttsMax=exp(5)) "String with encrypted g-function arguments";
   parameter String SHAgfun_r[nbTem]={ThermalResponseFactors.shaGFunction2(
       r=r_int[j],
       hBor=borFieDat.conDat.hBor,

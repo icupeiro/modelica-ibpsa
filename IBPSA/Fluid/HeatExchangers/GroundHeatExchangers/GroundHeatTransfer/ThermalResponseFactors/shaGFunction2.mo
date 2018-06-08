@@ -22,5 +22,5 @@ algorithm
   shaStr := shaStr + String(alpha, format=formatStr);
   shaStr := shaStr + String(r, format=formatStr);
 
-  sha := IBPSA.Utilities.Cryptographics.BaseClasses.sha(shaStr);
+  sha := IBPSA.Utilities.Cryptographics.sha(shaStr);
 end shaGFunction2;
