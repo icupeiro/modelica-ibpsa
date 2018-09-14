@@ -4,9 +4,9 @@ record Example
   extends
     IBPSA.Fluid.Geothermal.Borefields.Data.Configuration.Template(
       borCon = Types.BoreholeConfiguration.SingleUTube,
-      cooBor={{0,0},{0,6},{6,0},{6,6}},
+      cooBor={{0,0}},
       mBor_flow_nominal=0.3,
-      dp_nominal=5e4,
+      dp_nominal=0,
       hBor=100.0,
       rBor=0.075,
       dBor=1.0,
