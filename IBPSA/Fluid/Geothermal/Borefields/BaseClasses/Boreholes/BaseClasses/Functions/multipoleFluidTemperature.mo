@@ -1,4 +1,3 @@
-within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.Functions;
 function multipoleFluidTemperature "Fluid temperatures from multipole solution"
   extends Modelica.Icons.Function;
 
@@ -18,7 +17,7 @@ function multipoleFluidTemperature "Fluid temperatures from multipole solution"
 
   output Modelica.SIunits.Temperature TFlu[nPip] "Fluid temperature in pipes";
 
-protected
+protected 
   Real pikFil(unit="(m.K)/W")=1/(2*Modelica.Constants.pi*kFil) "Coefficient based on grout thermal conductivity";
   Real sigma=(kFil - kSoi)/(kFil + kSoi) "Thermal conductivity ratio";
   Real betaPip[nPip]=2*Modelica.Constants.pi*kFil*RFluPip "Dimensionless fluid to outter pipe wall thermal resistance";
@@ -45,7 +44,7 @@ protected
   Integer it "Iteration counter";
   Real eps_max "Convergence variable";
 
-algorithm
+algorithm 
   // Thermal resistance matrix from 0th order multipole
   for i in 1:nPip loop
     zPip_i := Complex(xPip[i], yPip[i]);
@@ -89,20 +88,20 @@ algorithm
         yPip,
         kFil,
         kSoi);
-      for m in 1:nPip loop
-        for k in 1:J loop
-          F_mk := Complex(FRea[m, k], FIma[m, k]);
-          P_nj_new := coeff[m, k]*Modelica.ComplexMath.conj(F_mk);
-          PRea_new[m, k] := Modelica.ComplexMath.real(P_nj_new);
-          PIma_new[m, k] := Modelica.ComplexMath.imag(P_nj_new);
+      for n in 1:nPip loop
+        for p in 1:J loop
+          F_mk := Complex(FRea[n, p], FIma[n, p]);
+          P_nj_new := coeff[n, p]*Modelica.ComplexMath.conj(F_mk);
+          PRea_new[n, p] := Modelica.ComplexMath.real(P_nj_new);
+          PIma_new[n, p] := Modelica.ComplexMath.imag(P_nj_new);
         end for;
       end for;
       diff_max := 0;
       diff_min := 1e99;
-      for m in 1:nPip loop
-        for k in 1:J loop
-          P_nj := Complex(PRea[m, k], PIma[m, k]);
-          P_nj_new := Complex(PRea_new[m, k], PIma_new[m, k]);
+      for l in 1:nPip loop
+        for q in 1:J loop
+          P_nj := Complex(PRea[l, q], PIma[l, q]);
+          P_nj_new := Complex(PRea_new[l, q], PIma_new[l, q]);
           diff_max := max(diff_max,
                            Modelica.ComplexMath.'abs'(P_nj_new - P_nj));
           diff_min := min(diff_min,
@@ -122,24 +121,24 @@ algorithm
   // Fluid Temperatures
   TFlu := TBor .+ R0*QPip_flow;
   if J > 0 then
-    for m in 1:nPip loop
-      zPip_i :=Complex(xPip[m], yPip[m]);
+    for t in 1:nPip loop
+      zPip_i :=Complex(xPip[t], yPip[t]);
       deltaTFlu := Complex(0, 0);
-      for n in 1:nPip loop
-        zPip_j :=Complex(xPip[n], yPip[n]);
-        for j in 1:J loop
-          P_nj := Complex(PRea[n, j], PIma[n, j]);
-          if n <> m then
+      for r in 1:nPip loop
+        zPip_j :=Complex(xPip[r], yPip[r]);
+        for s in 1:J loop
+          P_nj := Complex(PRea[r, s], PIma[r, s]);
+          if r <> t then
             // Second term
-            deltaTFlu := deltaTFlu + P_nj*(rPip[n]/(zPip_i - zPip_j))^j;
+            deltaTFlu := deltaTFlu + P_nj*(rPip[r]/(zPip_i - zPip_j))^s;
           end if;
           // Third term
-          deltaTFlu := deltaTFlu + sigma*P_nj*(rPip[n]*
+          deltaTFlu := deltaTFlu + sigma*P_nj*(rPip[r]*
             Modelica.ComplexMath.conj(zPip_i)/(rBor^2 - zPip_j*
-            Modelica.ComplexMath.conj(zPip_i)))^j;
+            Modelica.ComplexMath.conj(zPip_i)))^s;
         end for;
       end for;
-      TFlu[m] := TFlu[m] + Modelica.ComplexMath.real(deltaTFlu);
+      TFlu[t] := TFlu[t] + Modelica.ComplexMath.real(deltaTFlu);
     end for;
   end if;
 

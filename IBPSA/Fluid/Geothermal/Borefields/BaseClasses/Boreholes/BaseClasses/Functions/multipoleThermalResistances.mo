@@ -1,4 +1,3 @@
-within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.Functions;
 function multipoleThermalResistances
   "Thermal resistances from multipole solution"
   extends Modelica.Icons.Function;
@@ -17,12 +16,12 @@ function multipoleThermalResistances
   output Real RDelta[nPip,nPip](unit="(m.K)/W") "Delta-circuit thermal resistances";
   output Real R[nPip,nPip](unit="(m.K)/W") "Internal thermal resistances";
 
-protected
+protected 
   Real QPip_flow[nPip](unit="W/m") "Pipe heat transfer rates";
   Modelica.SIunits.Temperature TFlu[nPip] "Fluid temperatures";
   Real K[nPip,nPip](unit="W/(m.K)") "Internal thermal conductances";
 
-algorithm
+algorithm 
   for m in 1:nPip loop
     for n in 1:nPip loop
       if n == m then
@@ -44,22 +43,22 @@ algorithm
       kFil,
       kSoi,
       RFluPip);
-    for n in 1:nPip loop
-      R[n, m] := TFlu[n];
+    for i in 1:nPip loop
+      R[i, m] := TFlu[i];
     end for;
   end for;
   K := -Modelica.Math.Matrices.inv(R);
-  for m in 1:nPip loop
-    K[m, m] := -K[m, m];
-    for n in 1:nPip loop
-      if m <> n then
-        K[m, m] := K[m, m] - K[m, n];
+  for j in 1:nPip loop
+    K[j, j] := -K[j, j];
+    for k in 1:nPip loop
+      if j <> k then
+        K[j, j] := K[j, j] - K[j, k];
       end if;
     end for;
   end for;
-  for m in 1:nPip loop
-    for n in 1:nPip loop
-      RDelta[m, n] := 1./K[m, n];
+  for l in 1:nPip loop
+    for p in 1:nPip loop
+      RDelta[l, p] := 1./K[l, p];
     end for;
   end for;
 
