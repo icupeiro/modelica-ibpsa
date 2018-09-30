@@ -44,8 +44,8 @@ algorithm
       kFil,
       kSoi,
       RFluPip);
-    for n in 1:nPip loop
-      R[n, m] := TFlu[n];
+    for p in 1:nPip loop
+      R[p, m] := TFlu[p];
     end for;
   end for;
   K := -Modelica.Math.Matrices.inv(R);
