@@ -49,17 +49,17 @@ algorithm
     end for;
   end for;
   K := -Modelica.Math.Matrices.inv(R);
-  for m in 1:nPip loop
-    K[m, m] := -K[m, m];
-    for n in 1:nPip loop
-      if m <> n then
-        K[m, m] := K[m, m] - K[m, n];
+  for q in 1:nPip loop
+    K[q, q] := -K[q, q];
+    for r in 1:nPip loop
+      if q <> r then
+        K[q, q] := K[q, q] - K[q, r];
       end if;
     end for;
   end for;
-  for m in 1:nPip loop
-    for n in 1:nPip loop
-      RDelta[m, n] := 1./K[m, n];
+  for t in 1:nPip loop
+    for v in 1:nPip loop
+      RDelta[t, v] := 1./K[t, v];
     end for;
   end for;
 

@@ -89,20 +89,20 @@ algorithm
         yPip,
         kFil,
         kSoi);
-      for m in 1:nPip loop
-        for k in 1:J loop
-          F_mk := Complex(FRea[m, k], FIma[m, k]);
-          P_nj_new := coeff[m, k]*Modelica.ComplexMath.conj(F_mk);
-          PRea_new[m, k] := Modelica.ComplexMath.real(P_nj_new);
-          PIma_new[m, k] := Modelica.ComplexMath.imag(P_nj_new);
+      for p in 1:nPip loop
+        for q in 1:J loop
+          F_mk := Complex(FRea[p, q], FIma[p, q]);
+          P_nj_new := coeff[p, q]*Modelica.ComplexMath.conj(F_mk);
+          PRea_new[p, q] := Modelica.ComplexMath.real(P_nj_new);
+          PIma_new[p, q] := Modelica.ComplexMath.imag(P_nj_new);
         end for;
       end for;
       diff_max := 0;
       diff_min := 1e99;
-      for m in 1:nPip loop
-        for k in 1:J loop
-          P_nj := Complex(PRea[m, k], PIma[m, k]);
-          P_nj_new := Complex(PRea_new[m, k], PIma_new[m, k]);
+      for r in 1:nPip loop
+        for s in 1:J loop
+          P_nj := Complex(PRea[r, s], PIma[r, s]);
+          P_nj_new := Complex(PRea_new[r, s], PIma_new[r, s]);
           diff_max := max(diff_max,
                            Modelica.ComplexMath.'abs'(P_nj_new - P_nj));
           diff_min := min(diff_min,
@@ -122,24 +122,24 @@ algorithm
   // Fluid Temperatures
   TFlu := TBor .+ R0*QPip_flow;
   if J > 0 then
-    for m in 1:nPip loop
-      zPip_i :=Complex(xPip[m], yPip[m]);
+    for t in 1:nPip loop
+      zPip_i :=Complex(xPip[t], yPip[t]);
       deltaTFlu := Complex(0, 0);
-      for n in 1:nPip loop
-        zPip_j :=Complex(xPip[n], yPip[n]);
-        for j in 1:J loop
-          P_nj := Complex(PRea[n, j], PIma[n, j]);
-          if n <> m then
+      for v in 1:nPip loop
+        zPip_j :=Complex(xPip[v], yPip[v]);
+        for w in 1:J loop
+          P_nj := Complex(PRea[v, w], PIma[v, w]);
+          if v <> t then
             // Second term
-            deltaTFlu := deltaTFlu + P_nj*(rPip[n]/(zPip_i - zPip_j))^j;
+            deltaTFlu := deltaTFlu + P_nj*(rPip[v]/(zPip_i - zPip_j))^w;
           end if;
           // Third term
-          deltaTFlu := deltaTFlu + sigma*P_nj*(rPip[n]*
+          deltaTFlu := deltaTFlu + sigma*P_nj*(rPip[v]*
             Modelica.ComplexMath.conj(zPip_i)/(rBor^2 - zPip_j*
-            Modelica.ComplexMath.conj(zPip_i)))^j;
+            Modelica.ComplexMath.conj(zPip_i)))^w;
         end for;
       end for;
-      TFlu[m] := TFlu[m] + Modelica.ComplexMath.real(deltaTFlu);
+      TFlu[t] := TFlu[t] + Modelica.ComplexMath.real(deltaTFlu);
     end for;
   end if;
 
