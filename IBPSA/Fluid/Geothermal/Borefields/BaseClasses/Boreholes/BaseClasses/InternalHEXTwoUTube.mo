@@ -19,6 +19,7 @@ model InternalHEXTwoUTube
     final tau4=VTubSeg*rho4_nominal/m4_flow_nominal,
     vol1(
       final energyDynamics=energyDynamics,
+      final T(stateSelect=StateSelect.prefer),
       final massDynamics=massDynamics,
       final prescribedHeatFlowRate=false,
       final allowFlowReversal=allowFlowReversal1,
@@ -27,6 +28,7 @@ model InternalHEXTwoUTube
       final mSenFac=mSenFac),
     vol2(
       final energyDynamics=energyDynamics,
+      final T(stateSelect=StateSelect.prefer),
       final massDynamics=massDynamics,
       final prescribedHeatFlowRate=false,
       final m_flow_small=m2_flow_small,
@@ -34,6 +36,7 @@ model InternalHEXTwoUTube
       final mSenFac=mSenFac),
     vol3(
       final energyDynamics=energyDynamics,
+      final T(stateSelect=StateSelect.prefer),
       final massDynamics=massDynamics,
       final prescribedHeatFlowRate=false,
       final allowFlowReversal=allowFlowReversal3,
@@ -42,6 +45,7 @@ model InternalHEXTwoUTube
       final mSenFac=mSenFac),
     vol4(
       final energyDynamics=energyDynamics,
+      final T(stateSelect=StateSelect.prefer),
       final massDynamics=massDynamics,
       final prescribedHeatFlowRate=false,
       final m_flow_small=m4_flow_small,

@@ -12,6 +12,7 @@ model InternalHEXOneUTube
     final tau2=VTubSeg*rho2_nominal/m2_flow_nominal,
     redeclare final IBPSA.Fluid.MixingVolumes.MixingVolume vol1(
       final energyDynamics=energyDynamics,
+      final T(stateSelect=StateSelect.prefer),
       final massDynamics=massDynamics,
       final prescribedHeatFlowRate=false,
       final m_flow_small=m1_flow_small,
@@ -19,6 +20,7 @@ model InternalHEXOneUTube
       final mSenFac=mSenFac),
     redeclare final IBPSA.Fluid.MixingVolumes.MixingVolume vol2(
       final energyDynamics=energyDynamics,
+      final T(stateSelect=StateSelect.prefer),
       final massDynamics=massDynamics,
       final prescribedHeatFlowRate=false,
       final m_flow_small=m2_flow_small,
