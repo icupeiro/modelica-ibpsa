@@ -7,6 +7,8 @@ function gFunction "Evaluate the g-function of a bore field"
   input Modelica.SIunits.Height hBor "Borehole length";
   input Modelica.SIunits.Height dBor "Borehole buried depth";
   input Modelica.SIunits.Radius rBor "Borehole radius";
+  input Modelica.SIunits.Distance r
+    "Distance from the borehole wall at which the G-function is evaluated";
   input Modelica.SIunits.ThermalDiffusivity aSoi "Ground thermal diffusivity used in g-function evaluation";
   input Integer nSeg "Number of line source segments per borehole";
   input Integer nTimSho "Number of time steps in short time region";
@@ -60,7 +62,7 @@ algorithm
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.finiteLineSource(
       tSho[k],
       aSoi,
-      rLin,
+      r,
       hBor,
       dBor,
       hBor,
@@ -70,13 +72,13 @@ algorithm
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.infiniteLineSource(
       tSho[k],
       aSoi,
-      rLin);
+      r);
     // Cylindrical heat source solution
     CHS := 2*Modelica.Constants.pi*
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.cylindricalHeatSource(
       tSho[k],
       aSoi,
-      rBor,
+      r,
       rBor);
     // Correct finite line source solution for cylindrical geometry
     g[k+1] := FLS + (CHS - ILS);
@@ -175,13 +177,13 @@ algorithm
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.infiniteLineSource(
       tLon[k],
       aSoi,
-      rLin);
+      r);
     // Cylindrical heat source
     CHS := 2*Modelica.Constants.pi*
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.cylindricalHeatSource(
       tLon[k],
       aSoi,
-      rBor,
+      r,
       rBor);
     g[nTimSho+k] := g[nTimSho+k] + (CHS - ILS);
   end for;
@@ -272,6 +274,10 @@ response function (G-function) for heat transfer by borehole heat exchangers
 </p>
 </html>", revisions="<html>
 <ul>
+<li>
+October 18, 2018 by Iago Cupeiro:<br/>
+Adapted model for evaluation at different distances.
+</li>
 <li>
 March 22, 2018 by Massimo Cimmino:<br/>
 First implementation.

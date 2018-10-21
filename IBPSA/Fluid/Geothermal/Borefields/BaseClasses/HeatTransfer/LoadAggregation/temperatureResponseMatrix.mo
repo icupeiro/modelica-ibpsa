@@ -2,12 +2,13 @@ within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregatio
 function temperatureResponseMatrix
   "Reads and possibly writes a matrix with a time series of the borefield's temperature response"
   extends Modelica.Icons.Function;
-
   input Integer nBor "Number of boreholes";
   input Real cooBor[nBor, 2] "Borehole coordinates";
   input Modelica.SIunits.Height hBor "Borehole length";
   input Modelica.SIunits.Height dBor "Borehole buried depth";
   input Modelica.SIunits.Radius rBor "Borehole radius";
+  input Modelica.SIunits.Distance r
+    "Distance from borehole wall at which the temperature response is computed";
   input Modelica.SIunits.ThermalDiffusivity aSoi
     "Thermal diffusivity of soil";
   input Modelica.SIunits.ThermalConductivity kSoi
@@ -40,6 +41,7 @@ algorithm
       hBor=hBor,
       dBor=dBor,
       rBor=rBor,
+      r=r,
       aSoi=aSoi,
       nSeg=nSeg,
       nTimSho=nTimSho,
@@ -87,6 +89,10 @@ conductivity of the soil.
 </p>
 </html>", revisions="<html>
 <ul>
+<li>
+October 18, 2018, by Iago Cupeiro:<br/>
+Adaptation for the computation of the ground temperature at a given distance.
+</li>
 <li>
 August 27, 2018, by Michael Wetter:<br/>
 Changed name of temporary directory so that it is clear for users
