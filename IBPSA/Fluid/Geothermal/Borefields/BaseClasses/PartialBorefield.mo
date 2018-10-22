@@ -81,7 +81,8 @@ partial model PartialBorefield
     final tLoaAgg=tLoaAgg,
     final nCel=nCel,
     final borFieDat=borFieDat,
-    final forceGFunCalc=forceGFunCalc)
+    final forceGFunCalc=forceGFunCalc,
+    r=r)
     "Ground temperature response"
     annotation (Placement(transformation(extent={{20,70},{40,90}})));
 
@@ -110,6 +111,11 @@ partial model PartialBorefield
   Modelica.Blocks.Math.Gain gaiQ_flow(k=borFieDat.conDat.nBor)
     "Gain to multiply the heat extracted by one borehole by the number of boreholes"
     annotation (Placement(transformation(extent={{-20,70},{0,90}})));
+  Modelica.Blocks.Interfaces.RealOutput TSoi[size(groTemRes.delTBor,1), nSeg](each unit="K", each displayUnit="degC") "Ground temperature at a given distance r"
+    annotation (Placement(transformation(extent={{100,58},{120,78}})));
+  parameter Modelica.SIunits.Distance r[:]
+    "Radial distance from borehole wall at which the soil temperature is evaluated";
+  parameter Integer nbTem;
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";
@@ -119,7 +125,7 @@ protected
     y(each unit="K",
       each displayUnit="degC"))
     "Undisturbed soil temperature"
-    annotation (Placement(transformation(extent={{-40,14},{-20,34}})));
+    annotation (Placement(transformation(extent={{-60,14},{-40,34}})));
 
   Modelica.Thermal.HeatTransfer.Sensors.HeatFlowSensor QBorHol[nSeg]
     "Heat flow rate of all segments of the borehole"
@@ -131,7 +137,7 @@ protected
     "Borewall temperature"
     annotation (Placement(transformation(extent={{40,20},{60,40}})));
 
-  Modelica.Blocks.Math.Add TSoiDis[nSeg](each final k1=1, each final k2=1)
+  Modelica.Blocks.Math.Add TSoiDis[size(groTemRes.delTBor,1), nSeg](each final k1=1, each final k2=1)
     "Addition of undisturbed soil temperature and change of soil temperature"
     annotation (Placement(transformation(extent={{10,20},{30,40}})));
 
@@ -141,11 +147,19 @@ protected
     "Total heat flow rate for all segments of this borehole"
     annotation (Placement(transformation(extent={{-60,70},{-40,90}})));
 
-  Modelica.Blocks.Routing.Replicator repDelTBor(final nout=nSeg)
+  Modelica.Blocks.Routing.Replicator[size(groTemRes.delTBor, 1)] repDelTBor(
+                                                                           final nout=nSeg)
     "Signal replicator for temperature difference of the borehole"
     annotation (Placement(transformation(extent={{60,70},{80,90}})));
 
+  Modelica.Blocks.Routing.Replicator[size(groTemRes.delTBor, 1)] repTSoiUnd(final
+      nout=size(groTemRes.delTBor, 1))
+    "Signal replicator for temperature difference of the borehole"
+    annotation (Placement(transformation(extent={{-26,14},{-6,34}})));
 equation
+
+  connect(groTemRes.delTBor, TSoi);
+
   connect(masFloMul.port_b, port_b)
     annotation (Line(points={{80,-40},{90,-40},{90,0},{100,0}},
                                                      color={0,127,255}));
@@ -162,21 +176,24 @@ equation
   connect(QBorHol.Q_flow, QTotSeg_flow.u)
     annotation (Line(points={{-10,-10},{-86,-10},{-86,80},{-62,80}},
                                                           color={0,0,127}));
-  connect(groTemRes.delTBor, repDelTBor.u)
-    annotation (Line(points={{41,80},{58,80}}, color={0,0,127}));
-  connect(TSoiDis.u1, repDelTBor.y) annotation (Line(points={{8,36},{0,36},{0,
-          60},{90,60},{90,80},{81,80}},
-                        color={0,0,127}));
-  connect(TSoiDis.u2, TSoiUnd.y) annotation (Line(points={{8,24},{-19,24}},
-                         color={0,0,127}));
   connect(QTotSeg_flow.y, gaiQ_flow.u)
     annotation (Line(points={{-39,80},{-22,80}}, color={0,0,127}));
   connect(gaiQ_flow.y, groTemRes.QBor_flow)
     annotation (Line(points={{1,80},{19,80}}, color={0,0,127}));
-  connect(TSoiDis.y, TemBorWal.T)
-    annotation (Line(points={{31,30},{38,30}}, color={0,0,127}));
   connect(QBorHol.port_b, TemBorWal.port) annotation (Line(points={{6.66134e-16,
           0},{0,0},{0,10},{80,10},{80,30},{60,30}}, color={191,0,0}));
+  connect(groTemRes.delTBor, repDelTBor.u)
+    annotation (Line(points={{41,80},{58,80}}, color={0,0,127}));
+  connect(repDelTBor.y, TSoiDis.u1) annotation (Line(points={{81,80},{86,80},{86,
+          54},{-8,54},{-8,36},{8,36}}, color={0,0,127}));
+  connect(TSoiDis[1, :].y, TemBorWal.T) annotation (Line(points={{31,30},{34,30},
+          {34,30},{38,30}}, color={0,0,127}));
+  connect(TSoiUnd.y, repTSoiUnd.u)
+    annotation (Line(points={{-39,24},{-28,24}}, color={0,0,127}));
+  connect(repTSoiUnd.y, TSoiDis.u2)
+    annotation (Line(points={{-5,24},{8,24}}, color={0,0,127}));
+  connect(TSoi, TSoiDis.y) annotation (Line(points={{110,68},{92,68},{92,50},{
+          34,50},{34,30},{31,30}}, color={0,0,127}));
   annotation (
     Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
         graphics={
