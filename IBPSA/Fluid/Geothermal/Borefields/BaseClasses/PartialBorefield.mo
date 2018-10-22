@@ -111,14 +111,15 @@ partial model PartialBorefield
   Modelica.Blocks.Math.Gain gaiQ_flow(k=borFieDat.conDat.nBor)
     "Gain to multiply the heat extracted by one borehole by the number of boreholes"
     annotation (Placement(transformation(extent={{-20,70},{0,90}})));
-  Modelica.Blocks.Interfaces.RealOutput TSoi[size(groTemRes.delTBor,1), nSeg](each unit="K", each displayUnit="degC") "Ground temperature at a given distance r"
+  Modelica.Blocks.Interfaces.RealOutput TSoi[nbTem_int, nSeg](each unit="K", each displayUnit="degC") "Ground temperature at a given distance r"
     annotation (Placement(transformation(extent={{100,58},{120,78}})));
-  parameter Modelica.SIunits.Distance r[:]
+  parameter Modelica.SIunits.Distance r[nbTem]
     "Radial distance from borehole wall at which the soil temperature is evaluated";
-  parameter Integer nbTem;
+  parameter Integer nbTem = 10 "Number of ground temperatures to be evaluated";
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";
+  parameter Integer nbTem_int = nbTem + 1;
 
   Modelica.Blocks.Sources.Constant TSoiUnd[nSeg](
     k = TExt_start,
@@ -137,7 +138,7 @@ protected
     "Borewall temperature"
     annotation (Placement(transformation(extent={{40,20},{60,40}})));
 
-  Modelica.Blocks.Math.Add TSoiDis[size(groTemRes.delTBor,1), nSeg](each final k1=1, each final k2=1)
+  Modelica.Blocks.Math.Add TSoiDis[nbTem_int, nSeg](each final k1=1, each final k2=1)
     "Addition of undisturbed soil temperature and change of soil temperature"
     annotation (Placement(transformation(extent={{10,20},{30,40}})));
 
@@ -147,18 +148,17 @@ protected
     "Total heat flow rate for all segments of this borehole"
     annotation (Placement(transformation(extent={{-60,70},{-40,90}})));
 
-  Modelica.Blocks.Routing.Replicator[size(groTemRes.delTBor, 1)] repDelTBor(
-                                                                           final nout=nSeg)
+  Modelica.Blocks.Routing.Replicator[nbTem_int] repDelTBor(final
+       nout=nSeg)
     "Signal replicator for temperature difference of the borehole"
     annotation (Placement(transformation(extent={{60,70},{80,90}})));
 
-  Modelica.Blocks.Routing.Replicator[size(groTemRes.delTBor, 1)] repTSoiUnd(final
-      nout=size(groTemRes.delTBor, 1))
+  Modelica.Blocks.Routing.Replicator[nSeg] repTSoiUnd(final
+      nout=nbTem_int)
     "Signal replicator for temperature difference of the borehole"
     annotation (Placement(transformation(extent={{-26,14},{-6,34}})));
 equation
 
-  connect(groTemRes.delTBor, TSoi);
 
   connect(masFloMul.port_b, port_b)
     annotation (Line(points={{80,-40},{90,-40},{90,0},{100,0}},
@@ -190,11 +190,15 @@ equation
           {34,30},{38,30}}, color={0,0,127}));
   connect(TSoiUnd.y, repTSoiUnd.u)
     annotation (Line(points={{-39,24},{-28,24}}, color={0,0,127}));
-  connect(repTSoiUnd.y, TSoiDis.u2)
-    annotation (Line(points={{-5,24},{8,24}}, color={0,0,127}));
-  connect(TSoi, TSoiDis.y) annotation (Line(points={{110,68},{92,68},{92,50},{
-          34,50},{34,30},{31,30}}, color={0,0,127}));
-  annotation (
+  for i in 1:nSeg loop
+    for j in 1:nbTem_int loop
+  connect(repTSoiUnd[i].y[j], TSoiDis[j,i].u2);
+    end for;
+  end for;
+  connect(TSoi, TSoiDis.y) annotation (Line(points={{110,68},{92,68},{92,48},{34,
+          48},{34,30},{31,30}},
+                        color={0,0,127}));
+    annotation (Line(points={{-5,24},{8,24}}, color={0,0,127}),
     Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
         graphics={
         Rectangle(

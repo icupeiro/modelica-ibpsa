@@ -70,7 +70,7 @@ protected
     "Shifted vector of aggregated loads";
   discrete Integer curCel "Current occupied cell";
 
-  discrete Modelica.SIunits.TemperatureDifference delTBor0
+  discrete Modelica.SIunits.TemperatureDifference[nbTem] delTBor0
     "Previous time step's temperature difference current borehole wall temperature minus initial borehole temperature";
   discrete Real derDelTBor0[nbTem](unit="K/s")
     "Derivative of wall temperature change from previous time steps";
@@ -86,12 +86,12 @@ initial equation
   QAgg_flow = zeros(i);
   curCel = 1;
   QAggShi_flow = QAgg_flow;
-  delTBor0 = 0;
   U = 0;
   U_old = 0;
   for j in 1:nbTem loop
     derDelTBor0[j] = 0;
     delTBor[j] = 0;
+    delTBor0[j] = 0;
   end for;
 
   (nu,rCel) = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationCellTimes(
@@ -156,14 +156,15 @@ equation
     // Determine the temperature change at the next aggregation step (assuming
     // no loads until then)
     for j in 1:nbTem loop
-    delTBor0 = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temporalSuperposition(
+    delTBor0[j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temporalSuperposition(
       i=i,
       QAgg_flow=QAggShi_flow,
       kappa=kappa[j,:],
       curCel=curCel);
+    derDelTBor0[j] = (delTBor0[j]-delTBor[j])/tLoaAgg;
     end for;
 
-    derDelTBor0 = {(delTBor0-delTBor[j])/tLoaAgg for j in 1:nbTem};
+
   end when;
 
     annotation (Line(points={{-120,60},{-120,60}}, color={0,0,127}),
