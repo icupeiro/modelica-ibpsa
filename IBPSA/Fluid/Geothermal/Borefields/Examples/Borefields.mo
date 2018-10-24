@@ -16,7 +16,9 @@ model Borefields
     tLoaAgg=tLoaAgg,
     dynFil=false,
     energyDynamics=Modelica.Fluid.Types.Dynamics.FixedInitial,
-    TExt0_start=TGro)
+    TExt0_start=TGro,
+    r={0.5,1,2,3,6},
+    nbTem=5)
     "Borefield with a 2-U-tube connected in parallel borehole configuration"
     annotation (Placement(transformation(extent={{-10,-10},{10,10}})));
   IBPSA.Fluid.Sources.MassFlowSource_T sou1(
@@ -57,7 +59,9 @@ model Borefields
     tLoaAgg=tLoaAgg,
     dynFil=false,
     energyDynamics=Modelica.Fluid.Types.Dynamics.FixedInitial,
-    TExt0_start=TGro)
+    TExt0_start=TGro,
+    r={0.5,1,2,3,6},
+    nbTem=5)
     "Borefield with a 2-U-tube connected in serie borehole configuration"
     annotation (Placement(transformation(extent={{-10,50},{10,70}})));
   IBPSA.Fluid.Sources.MassFlowSource_T sou2(
@@ -99,7 +103,9 @@ model Borefields
     tLoaAgg=tLoaAgg,
     dynFil=false,
     energyDynamics=Modelica.Fluid.Types.Dynamics.FixedInitial,
-    TExt0_start=TGro)
+    TExt0_start=TGro,
+    r={0.5,1,2,3,6},
+    nbTem=5)
     "Borefield with a U-tube borehole configuration"
     annotation (Placement(transformation(extent={{-10,-70},{10,-50}})));
   IBPSA.Fluid.Sources.MassFlowSource_T sou(
