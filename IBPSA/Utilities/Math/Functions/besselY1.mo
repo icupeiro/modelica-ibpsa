@@ -6,23 +6,23 @@ function besselY1 "Bessel function of the second kind of order 1, Y1"
   output Real Y1 "Bessel function J1(x)";
 
 protected
-  Real P[5] = {1.0,
+  constant Real P[5] = {1.0,
             0.183105e-2,
             -0.3516396496e-4,
             0.2457520174e-5,
             -0.240337019e-6};
-  Real Q[5] = {0.04687499995,
+  constant Real Q[5] = {0.04687499995,
             -0.2002690873e-3,
             0.8449199096e-5,
             -0.88228987e-6,
             0.105787412e-6};
-  Real R[6] = {-0.4900604943e13,
+  constant Real R[6] = {-0.4900604943e13,
             0.1275274390e13,
             -0.5153438139e11,
             0.7349264551e9,
             -0.4237922726e7,
             0.8511937935e4};
-  Real S[7] = {0.2499580570e14,
+  constant Real S[7] = {0.2499580570e14,
             0.4244419664e12,
             0.3733650367e10,
             0.2245904002e8,
@@ -37,7 +37,6 @@ protected
   Real coeff2;
 
 algorithm
-
   if ax < 8.0 then
     y := x^2;
     coeff1 := R[6];
@@ -62,7 +61,7 @@ algorithm
 annotation (
 Documentation(info="<html>
 <p>
-Evaluates the bessel function of the second kind of order 1 (Y<sub>1</sub>), based
+Evaluates the Bessel function of the second kind of order 1 (<i>Y<sub>1</sub></i>), based
 on the implementations of Press et al. (1986).
 </p>
 <h4>References</h4>

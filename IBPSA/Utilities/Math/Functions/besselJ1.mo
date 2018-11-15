@@ -6,23 +6,23 @@ function besselJ1 "Bessel function of the first kind of order 1, J1"
   output Real J1 "Bessel function J1(x)";
 
 protected
-  Real P[5] = {1.0,
+  constant Real P[5] = {1.0,
             0.183105e-2,
             -0.3516396496e-4,
             0.2457520174e-5,
             -0.240337019e-6};
-  Real Q[5] = {0.04687499995,
+  constant Real Q[5] = {0.04687499995,
             -0.2002690873e-3,
             0.8449199096e-5,
             -0.88228987e-6,
             0.105787412e-6};
-  Real R[6] = {72362614232.0,
+  constant Real R[6] = {72362614232.0,
             -7895059235.0,
             242396853.1,
             -2972611.439,
             15704.48260,
             -30.16036606};
-  Real S[6] = {144725228442.0,
+  constant Real S[6] = {144725228442.0,
             2300535178.0,
             18583304.74,
             99447.43394,
@@ -31,12 +31,11 @@ protected
   Real ax = abs(x);
   Real xx;
   Real y;
-  Real z = 8/ax;
+  Real z;
   Real coeff1;
   Real coeff2;
 
 algorithm
-
   if ax < 8.0 then
     y := x^2;
     coeff1 := R[6];
@@ -47,6 +46,7 @@ algorithm
     end for;
     J1 := x*coeff1/coeff2;
   else
+    z := 8/ax;
     y := z^2;
     xx := ax - 2.356194491;
     coeff1 := P[5];
@@ -61,7 +61,7 @@ algorithm
 annotation (
 Documentation(info="<html>
 <p>
-Evaluates the bessel function of the first kind of order 1 (J<sub>1</sub>), based
+Evaluates the Bessel function of the first kind of order 1 (<i>J<sub>1</sub></i>), based
 on the implementations of Press et al. (1986).
 </p>
 <h4>References</h4>

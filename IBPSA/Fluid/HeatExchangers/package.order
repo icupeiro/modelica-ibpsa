@@ -1,10 +1,10 @@
 ConstantEffectiveness
+EvaporatorCondenser
 HeaterCooler_u
 Heater_T
 PrescribedOutlet
 SensibleCooler_T
 ActiveBeams
-GroundHeatExchangers
 Radiators
 Examples
 Validation
