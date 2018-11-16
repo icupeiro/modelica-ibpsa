@@ -4,6 +4,7 @@ finiteLineSource
 finiteLineSource_Erfint
 finiteLineSource_Integrand
 gFunction
+gFunctionSoil
 infiniteLineSource
 shaGFunction
 timeGeometric

@@ -3,5 +3,6 @@ aggregationWeightingFactors
 countAggregationCells
 shiftAggregationCells
 temperatureResponseMatrix
+temperatureResponseMatrixSoil
 temporalSuperposition
 Validation
