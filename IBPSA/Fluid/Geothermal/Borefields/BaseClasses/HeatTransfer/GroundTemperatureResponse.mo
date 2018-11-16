@@ -9,7 +9,8 @@ model GroundTemperatureResponse "Model calculating discrete load aggregation"
     "Set to true to force the thermal response to be calculated at the start instead of checking whether it has been pre-computed";
   parameter IBPSA.Fluid.Geothermal.Borefields.Data.Borefield.Template borFieDat
     "Record containing all the parameters of the borefield model" annotation (
-     choicesAllMatching=true, Placement(transformation(extent={{-80,-80},{-60,-60}})));
+      choicesAllMatching=true, Placement(transformation(extent={{-80,-80},{-60,
+            -60}})));
 
   Modelica.Blocks.Interfaces.RealOutput[nbTem] delTBor(unit="K")
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
@@ -94,7 +95,8 @@ initial equation
     delTBor0[j] = 0;
   end for;
 
-  (nu,rCel) = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationCellTimes(
+  (nu,rCel) =
+    IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationCellTimes(
     i=i,
     lvlBas=lvlBas,
     nCel=nCel,
@@ -103,18 +105,38 @@ initial equation
 
   t_start = time;
 
-  kappa = {IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
+  kappa = {
+    IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
     i=i,
     nTimTot=nTimTot,
-    TStep=timSer[j,:,:],
+    TStep=timSer[j, :, :],
     nu=nu) for j in 1:nbTem};
 
   for j in 1:nbTem loop
     dTStepdt[j] = kappa[j,1]/tLoaAgg;
   end for;
 
-  timSer=
-    {IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temperatureResponseMatrix(
+  timSer[1, :, :] =
+    IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temperatureResponseMatrix(
+    nBor=borFieDat.conDat.nBor,
+    cooBor=borFieDat.conDat.cooBor,
+    hBor=borFieDat.conDat.hBor,
+    dBor=borFieDat.conDat.dBor,
+    rBor=borFieDat.conDat.rBor,
+    aSoi=borFieDat.soiDat.aSoi,
+    kSoi=borFieDat.soiDat.kSoi,
+    nSeg=nSeg,
+    nTimSho=nTimSho,
+    nTimLon=nTimLon,
+    nTimTot=nTimTot,
+    ttsMax=ttsMax,
+    sha=SHAgfun[1],
+    forceGFunCalc=forceGFunCalc);
+
+for j in 2:nbTem loop
+
+    timSer[j, :, :] =
+      IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temperatureResponseMatrixSoil(
       nBor=borFieDat.conDat.nBor,
       cooBor=borFieDat.conDat.cooBor,
       hBor=borFieDat.conDat.hBor,
@@ -129,14 +151,14 @@ initial equation
       nTimTot=nTimTot,
       ttsMax=ttsMax,
       sha=SHAgfun[j],
-      forceGFunCalc=forceGFunCalc) for j in 1:nbTem};
+      forceGFunCalc=forceGFunCalc);
+end for;
 
 equation
   for j in 1:nbTem loop
     der(delTBor[j]) = dTStepdt[j]*QBor_flow + derDelTBor0[j];
   end for;
   der(U) = QBor_flow;
-
 
   when sample(t_start, tLoaAgg) then
     // Assign average load since last aggregation step to the first cell of the
@@ -146,7 +168,8 @@ equation
     // Store (U - pre(U_old))/tLoaAgg in QAgg_flow[1], and pre(QAggShi_flow) in the other elements
     QAgg_flow = cat(1, {(U - pre(U_old))/tLoaAgg}, pre(QAggShi_flow[2:end]));
     // Shift loads in aggregation cells
-    (curCel,QAggShi_flow) = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.shiftAggregationCells(
+    (curCel,QAggShi_flow) =
+      IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.shiftAggregationCells(
       i=i,
       QAgg_flow=QAgg_flow,
       rCel=rCel,
@@ -156,14 +179,14 @@ equation
     // Determine the temperature change at the next aggregation step (assuming
     // no loads until then)
     for j in 1:nbTem loop
-    delTBor0[j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temporalSuperposition(
-      i=i,
-      QAgg_flow=QAggShi_flow,
-      kappa=kappa[j,:],
-      curCel=curCel);
+      delTBor0[j] =
+        IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temporalSuperposition(
+        i=i,
+        QAgg_flow=QAggShi_flow,
+        kappa=kappa[j, :],
+        curCel=curCel);
     derDelTBor0[j] = (delTBor0[j]-delTBor[j])/tLoaAgg;
     end for;
-
 
   end when;
 
