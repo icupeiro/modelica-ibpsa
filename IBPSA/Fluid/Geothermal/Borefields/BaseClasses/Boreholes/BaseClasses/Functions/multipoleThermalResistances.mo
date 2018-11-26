@@ -44,22 +44,22 @@ algorithm
       kFil,
       kSoi,
       RFluPip);
-    for n in 1:nPip loop
-      R[n, m] := TFlu[n];
+    for p in 1:nPip loop
+      R[p, m] := TFlu[p];
     end for;
   end for;
   K := -Modelica.Math.Matrices.inv(R);
-  for m in 1:nPip loop
-    K[m, m] := -K[m, m];
-    for n in 1:nPip loop
-      if m <> n then
-        K[m, m] := K[m, m] - K[m, n];
+  for k in 1:nPip loop
+    K[k, k] := -K[k, k];
+    for j in 1:nPip loop
+      if k <> j then
+        K[k, k] := K[k, k] - K[k, j];
       end if;
     end for;
   end for;
-  for m in 1:nPip loop
-    for n in 1:nPip loop
-      RDelta[m, n] := 1./K[m, n];
+  for q in 1:nPip loop
+    for r in 1:nPip loop
+      RDelta[q, r] := 1./K[q, r];
     end for;
   end for;
 
