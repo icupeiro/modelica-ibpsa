@@ -8,7 +8,6 @@ function gFunctionSoil "Evaluate the g-function of a bore field"
   input Modelica.SIunits.Distance r
     "Distance from the borehole wall at which the G-function is evaluated";
   input Modelica.SIunits.ThermalDiffusivity aSoi "Ground thermal diffusivity used in g-function evaluation";
-  input Integer nSeg "Number of line source segments per borehole";
   input Integer nTimSho "Number of time steps in short time region";
   input Integer nTimLon "Number of time steps in long time region";
   input Real ttsMax "Maximum adimensional time for gfunc calculation";
@@ -20,7 +19,7 @@ protected
   Modelica.SIunits.Time ts = hBor^2/(9*aSoi) "Characteristic time";
   Modelica.SIunits.Time tSho_min = 1 "Minimum time for short time calculations";
   Modelica.SIunits.Time tLon_max = ts*ttsMax "Maximum time for long time calculations";
-  Modelica.SIunits.Time tVec[nTimSho+nTimLon] "Time vector for short time calculations";
+  Modelica.SIunits.Time tVec[nTimSho+nTimLon-1] "Time vector for short time calculations";
 
   Real FLS "Finite line source solution";
   Real ILS "Infinite line source solution";
@@ -32,18 +31,20 @@ algorithm
     IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.timeGeometric(
     tSho_min,
     tLon_max,
-    nTimSho + nTimLon);
+    nTimSho + nTimLon-1);
   // Concatenate the short- and long-term parts
-  tGFun := tVec;
+  tGFun :=  cat(1,{0},tVec);
 
   // -----------------------
   // Short time calculations
   // -----------------------
-  for k in 1:nTimSho+nTimLon loop
+
+  g[1] := 0.;
+  for k in 2:nTimSho+nTimLon loop
     // Finite line source solution
     FLS :=
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.finiteLineSource(
-      tVec[k],
+      tGFun[k],
       aSoi,
       r,
       hBor,
@@ -53,13 +54,13 @@ algorithm
     // Infinite line source solution
     ILS := 0.5*
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.infiniteLineSource(
-      tVec[k],
+      tGFun[k],
       aSoi,
       r);
     // Cylindrical heat source solution
     CHS := 2*Modelica.Constants.pi*
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.cylindricalHeatSource(
-      tVec[k],
+      tGFun[k],
       aSoi,
       r,
       rBor);

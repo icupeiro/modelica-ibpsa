@@ -5,15 +5,12 @@ function temperatureResponseMatrixSoil
   input Modelica.SIunits.Height hBor "Borehole length";
   input Modelica.SIunits.Height dBor "Borehole buried depth";
   input Modelica.SIunits.Radius rBor "Borehole radius";
-  input Integer nBor "Number of boreholes";
-  input Real cooBor[nBor, 2] "Borehole coordinates";
   input Modelica.SIunits.Distance r
     "Distance from borehole wall at which the temperature response is computed";
   input Modelica.SIunits.ThermalDiffusivity aSoi
     "Thermal diffusivity of soil";
   input Modelica.SIunits.ThermalConductivity kSoi
     "Thermal conductivity of soil";
-  input Integer nSeg "Number of line source segments per borehole";
   input Integer nTimSho "Number of time steps in short time region";
   input Integer nTimLon "Number of time steps in long time region";
   input Integer nTimTot "Number of g-function points";
@@ -41,14 +38,13 @@ algorithm
       rBor=rBor,
       r=r,
       aSoi=aSoi,
-      nSeg=nSeg,
       nTimSho=nTimSho,
       nTimLon=nTimLon,
       ttsMax=ttsMax);
 
     for i in 1:nTimTot loop
       TStep[i,1] := tGFun[i];
-      TStep[i,2] := gFun[i]/(2*Modelica.Constants.pi*hBor*nBor*kSoi);
+      TStep[i,2] := gFun[i]/(2*Modelica.Constants.pi*hBor*kSoi);
     end for;
 
     //creation of a temporary folder in the simulation folder

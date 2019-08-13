@@ -137,15 +137,12 @@ for j in 2:nbTem loop
 
     timSer[j, :, :] =
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temperatureResponseMatrixSoil(
-      nBor=borFieDat.conDat.nBor,
-      cooBor=borFieDat.conDat.cooBor,
       hBor=borFieDat.conDat.hBor,
       dBor=borFieDat.conDat.dBor,
       rBor=borFieDat.conDat.rBor,
       r=r_int[j],
       aSoi=borFieDat.soiDat.aSoi,
       kSoi=borFieDat.soiDat.kSoi,
-      nSeg=nSeg,
       nTimSho=nTimSho,
       nTimLon=nTimLon,
       nTimTot=nTimTot,

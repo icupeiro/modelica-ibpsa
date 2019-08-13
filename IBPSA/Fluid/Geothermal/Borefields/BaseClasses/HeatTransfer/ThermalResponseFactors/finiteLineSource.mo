@@ -63,8 +63,8 @@ algorithm
         1.0e-6);
     else
       // Linearize the solution at times below the time treshold.
-      lowBou := 1.0/sqrt(4*aSoi*timTre);
-      h_21 := t/timTre*Modelica.Math.Nonlinear.quadratureLobatto(
+      lowBou := 1.0/sqrt(4*aSoi*t);
+      h_21 := Modelica.Math.Nonlinear.quadratureLobatto(
         function
           IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.finiteLineSource_Integrand(
           dis=dis,
@@ -77,6 +77,20 @@ algorithm
         lowBou,
         uppBou,
         1.0e-6);
+//       lowBou := 1.0/sqrt(4*aSoi*timTre);
+//       h_21 := t/timTre*Modelica.Math.Nonlinear.quadratureLobatto(
+//         function
+//           IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.finiteLineSource_Integrand(
+//           dis=dis,
+//           len1=len1,
+//           burDep1=burDep1,
+//           len2=len2,
+//           burDep2=burDep2,
+//           includeRealSource=includeRealSource,
+//           includeMirrorSource=includeMirrorSource),
+//         lowBou,
+//         uppBou,
+//         1.0e-6);
     end if;
   end if;
 
