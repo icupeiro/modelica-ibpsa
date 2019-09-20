@@ -1,5 +1,5 @@
 ﻿within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.Validation;
-model Analytic_20Years
+model Analytic_20Years_Continuous
   "Long term validation of ground temperature response model"
   extends Modelica.Icons.Example;
 
@@ -33,7 +33,8 @@ model Analytic_20Years
     tLoaAgg=3600,
     nCel=5,
     borFieDat=borFieDat,
-    forceGFunCalc=true) "Ground temperature response of borehole"
+    forceGFunCalc=false)
+                        "Ground temperature response of borehole"
     annotation (Placement(transformation(extent={{-40,40},{-20,60}})));
 
   Modelica.Blocks.Sources.CombiTimeTable timTabQ(
@@ -73,6 +74,21 @@ model Analytic_20Years
         extent={{-10,-10},{10,10}},
         rotation=0,
         origin={30,20})));
+  GroundTemperatureResponse_Continuous groundTemperatureResponse_Continuous(
+      borFieDat=borFieDat, tLoaAgg=3600)
+    annotation (Placement(transformation(extent={{-40,68},{-20,88}})));
+  Modelica.Blocks.Math.Add TBorWal1(y(unit="K"))
+                                                "Borewall temperature"
+    annotation (Placement(transformation(
+        extent={{-10,-10},{10,10}},
+        rotation=0,
+        origin={30,70})));
+  Modelica.Blocks.Math.Add add1(y(unit="K"), k1=-1)
+    "Difference between FFT method and ground temperature response model"
+    annotation (Placement(transformation(
+        extent={{-10,-10},{10,10}},
+        rotation=0,
+        origin={70,50})));
 equation
 
   connect(TBorWal.u2, const.y)
@@ -87,6 +103,17 @@ equation
                                                   color={0,0,127}));
   connect(groTemRes.QBor_flow, timTabQ.y[1])
     annotation (Line(points={{-41,50},{-59,50}}, color={0,0,127}));
+  connect(timTabQ.y[1], groundTemperatureResponse_Continuous.QBor_flow)
+    annotation (Line(points={{-59,50},{-50,50},{-50,78},{-41,78}}, color={0,0,
+          127}));
+  connect(groundTemperatureResponse_Continuous.delTBor, TBorWal1.u1)
+    annotation (Line(points={{-19,78},{0,78},{0,76},{18,76}}, color={0,0,127}));
+  connect(const.y, TBorWal1.u2) annotation (Line(points={{-39,10},{-10,10},{-10,
+          64},{18,64}}, color={0,0,127}));
+  connect(TBorWal1.y, add1.u1) annotation (Line(points={{41,70},{50,70},{50,56},
+          {58,56}}, color={0,0,127}));
+  connect(timTabT.y[1], add1.u2) annotation (Line(points={{-59,-20},{0,-20},{0,
+          44},{58,44}}, color={0,0,127}));
   annotation (experiment(StopTime=630720000,Tolerance=1e-6),
 __Dymola_Commands(file="modelica://IBPSA/Resources/Scripts/Dymola/Fluid/Geothermal/Borefields/BaseClasses/HeatTransfer/Validation/Analytic_20Years.mos"
         "Simulate and plot"),
@@ -116,4 +143,4 @@ First implementation.
 </li>
 </ul>
 </html>"));
-end Analytic_20Years;
+end Analytic_20Years_Continuous;

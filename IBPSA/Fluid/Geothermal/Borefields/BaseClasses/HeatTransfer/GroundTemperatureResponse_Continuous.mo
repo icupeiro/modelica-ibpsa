@@ -1,13 +1,11 @@
 within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer;
-model GroundTemperatureResponse "Model calculating discrete load aggregation"
+model GroundTemperatureResponse_Continuous
+  "Model calculating discrete load aggregation"
   parameter Modelica.SIunits.Time tLoaAgg(final min = Modelica.Constants.eps)=3600
     "Time resolution of load aggregation";
   parameter Integer nCel(min=1)=5 "Number of cells per aggregation level";
   parameter Boolean forceGFunCalc = false
     "Set to true to force the thermal response to be calculated at the start instead of checking whether it has been pre-computed";
-
-  discrete Modelica.SIunits.HeatFlowRate[i] QAgg_flow
-    "Vector of aggregated loads";
   parameter IBPSA.Fluid.Geothermal.Borefields.Data.Borefield.Template borFieDat
     "Record containing all the parameters of the borefield model" annotation (
      choicesAllMatching=true, Placement(transformation(extent={{-80,-80},{-60,-60}})));
@@ -20,6 +18,9 @@ model GroundTemperatureResponse "Model calculating discrete load aggregation"
     "Heat flow from all boreholes combined (positive if heat from fluid into soil)"
     annotation (Placement(transformation(extent={{-120,-10},{-100,10}}),
         iconTransformation(extent={{-120,-10},{-100,10}})));
+
+  Modelica.SIunits.HeatFlowRate[i] QAgg_flow
+    "Vector of aggregated loads";
 
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
@@ -56,35 +57,15 @@ protected
       "Number of aggregation cells";
   final parameter Real[nTimTot,2] timSer(each fixed=false)
     "g-function input from matrix, with the second column as temperature Tstep";
-  final parameter Modelica.SIunits.Time t_start(fixed=false) "Simulation start time";
   final parameter Modelica.SIunits.Time[i] nu(each fixed=false)
     "Time vector for load aggregation";
   final parameter Real[i] kappa(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
-  discrete Modelica.SIunits.HeatFlowRate[i] QAggShi_flow
-    "Shifted vector of aggregated loads";
-  discrete Integer curCel "Current occupied cell";
-
-  discrete Modelica.SIunits.TemperatureDifference delTBor0
-    "Previous time step's temperature difference current borehole wall temperature minus initial borehole temperature";
-  discrete Real derDelTBor0(unit="K/s")
-    "Derivative of wall temperature change from previous time steps";
-  final parameter Real dTStepdt(fixed=false)
-    "Time derivative of g/(2*pi*H*Nb*ks) within most recent cell";
-
-  Modelica.SIunits.Heat U "Accumulated heat flow from all boreholes";
-  discrete Modelica.SIunits.Heat U_old "Accumulated heat flow from all boreholes at last aggregation step";
 
 initial equation
   QAgg_flow = zeros(i);
-  curCel = 1;
   delTBor = 0;
-  QAggShi_flow = QAgg_flow;
-  delTBor0 = 0;
-  U = 0;
-  U_old = 0;
-  derDelTBor0 = 0;
 
   (nu,rCel) = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationCellTimes(
     i=i,
@@ -93,15 +74,11 @@ initial equation
     tLoaAgg=tLoaAgg,
     timFin=timFin);
 
-  t_start = time;
-
   kappa = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
     i=i,
     nTimTot=nTimTot,
     TStep=timSer,
     nu=nu);
-
-  dTStepdt = kappa[1]/tLoaAgg;
 
   timSer =
     IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temperatureResponseMatrix(
@@ -121,34 +98,15 @@ initial equation
       forceGFunCalc=forceGFunCalc);
 
 equation
-  der(delTBor) = dTStepdt*QBor_flow + derDelTBor0;
-  der(U) = QBor_flow;
+  delTBor = QAgg_flow[:]*kappa[:];
 
-  when sample(t_start, tLoaAgg) then
-    // Assign average load since last aggregation step to the first cell of the
-    // aggregation vector
-    U_old = U;
+  // First order scheme
+   der(QAgg_flow[1]) = -1/(rCel[1]*tLoaAgg)*(QAgg_flow[1] - QBor_flow);
+   for j in 2:i-1 loop
+     der(QAgg_flow[j]) = -1/(rCel[j]*tLoaAgg)*(QAgg_flow[j] - QAgg_flow[j-1]);
+   end for;
+   der(QAgg_flow[i]) = 1/(rCel[i]*tLoaAgg)*(QAgg_flow[i-1]);
 
-    // Store (U - pre(U_old))/tLoaAgg in QAgg_flow[1], and pre(QAggShi_flow) in the other elements
-    QAgg_flow = cat(1, {(U - pre(U_old))/tLoaAgg}, pre(QAggShi_flow[2:end]));
-    // Shift loads in aggregation cells
-    (curCel,QAggShi_flow) = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.shiftAggregationCells(
-      i=i,
-      QAgg_flow=QAgg_flow,
-      rCel=rCel,
-      nu=nu,
-      curTim=(time - t_start));
-
-    // Determine the temperature change at the next aggregation step (assuming
-    // no loads until then)
-    delTBor0 = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temporalSuperposition(
-      i=i,
-      QAgg_flow=QAggShi_flow,
-      kappa=kappa,
-      curCel=curCel);
-
-    derDelTBor0 = (delTBor0-delTBor)/tLoaAgg;
-  end when;
 
   annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
         Rectangle(
@@ -343,4 +301,4 @@ First implementation.
 </li>
 </ul>
 </html>"));
-end GroundTemperatureResponse;
+end GroundTemperatureResponse_Continuous;
