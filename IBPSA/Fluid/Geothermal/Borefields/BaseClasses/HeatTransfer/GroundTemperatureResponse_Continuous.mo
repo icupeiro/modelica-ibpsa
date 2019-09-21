@@ -21,6 +21,8 @@ model GroundTemperatureResponse_Continuous
 
   Modelica.SIunits.HeatFlowRate[i] QAgg_flow
     "Vector of aggregated loads";
+   Modelica.SIunits.HeatFlowRate[i] QFace
+     "Vector of cell face values of aggregated loads";
 
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
@@ -100,13 +102,23 @@ initial equation
 equation
   delTBor = QAgg_flow[:]*kappa[:];
 
-  // First order scheme
-   der(QAgg_flow[1]) = -1/(rCel[1]*tLoaAgg)*(QAgg_flow[1] - QBor_flow);
-   for j in 2:i-1 loop
-     der(QAgg_flow[j]) = -1/(rCel[j]*tLoaAgg)*(QAgg_flow[j] - QAgg_flow[j-1]);
+//    // "Upwind" scheme
+//    der(QAgg_flow[1]) = -1/(rCel[1]*tLoaAgg)*(QAgg_flow[1] - QBor_flow);
+//    for j in 2:i-1 loop
+//      der(QAgg_flow[j]) = -1/(rCel[j]*tLoaAgg)*(QAgg_flow[j] - QAgg_flow[j-1]);
+//    end for;
+//    der(QAgg_flow[i]) = 1/(rCel[i]*tLoaAgg)*(QAgg_flow[i-1]);
+
+   // "QUICK" scheme
+   QFace[1] = QBor_flow;
+   QFace[2] = 0.5*(QAgg_flow[1] + QAgg_flow[2]) - 0.125*(0.5*rCel[1] + 0.5*rCel[2])^2/rCel[1]*((QAgg_flow[2] - QAgg_flow[1])/(0.5*rCel[1] + 0.5*rCel[2]) - (QAgg_flow[1] - QBor_flow)/(0.5*rCel[1]));
+   for j in 3:i loop
+     QFace[j] = 0.5*(QAgg_flow[j-1] + QAgg_flow[j]) - 0.125*(0.5*rCel[j-1] + 0.5*rCel[j])^2/rCel[j-1]*((QAgg_flow[j] - QAgg_flow[j-1])/(0.5*rCel[j-1] + 0.5*rCel[j]) - (QAgg_flow[j-1] - QAgg_flow[j-2])/(0.5*rCel[j-1] + 0.5*rCel[j-2]));
+   end for;
+   for j in 1:i-1 loop
+     der(QAgg_flow[j])*rCel[j]*tLoaAgg = QFace[j] - QFace[j+1];
    end for;
    der(QAgg_flow[i]) = 1/(rCel[i]*tLoaAgg)*(QAgg_flow[i-1]);
-
 
   annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
         Rectangle(
