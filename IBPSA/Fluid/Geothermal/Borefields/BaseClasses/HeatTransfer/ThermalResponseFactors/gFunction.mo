@@ -144,7 +144,7 @@ algorithm
           end for;
         // Apply to all pairs that have the same separation distance
           for b in 1:nBor loop
-            for h in m:nBor loop
+            for h in b:nBor loop
               if b == h then
                 dis_mn := rLin;
               else
@@ -154,8 +154,8 @@ algorithm
                 // Add thermal response factor to coefficient matrix A
                 for w in 1:nSeg loop
                   for z in 1:nSeg loop
-                    A[(b-1)*nSeg+w,(h-1)*nSeg+v] := hSegRea[abs(w-z)+1] + hSegMir[w+z-1];
-                    A[(h-1)*nSeg+z,(b-1)*nSeg+u] := hSegRea[abs(w-z)+1] + hSegMir[w+z-1];
+                    A[(b-1)*nSeg+w,(h-1)*nSeg+z] := hSegRea[abs(w-z)+1] + hSegMir[w+z-1];
+                    A[(h-1)*nSeg+z,(b-1)*nSeg+w] := hSegRea[abs(w-z)+1] + hSegMir[w+z-1];
                   end for;
                 end for;
                 // Mark current pair as evaluated
