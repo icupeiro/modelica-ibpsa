@@ -58,11 +58,11 @@ algorithm
   // Short time calculations
   // -----------------------
   g[1] := 0.;
-  for k in 1:nTimSho loop
+  for n in 1:nTimSho loop
     // Finite line source solution
     FLS :=
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.finiteLineSource(
-      tSho[k],
+      tSho[n],
       aSoi,
       rLin,
       hBor,
@@ -72,18 +72,18 @@ algorithm
     // Infinite line source solution
     ILS := 0.5*
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.infiniteLineSource(
-      tSho[k],
+      tSho[n],
       aSoi,
       rLin);
     // Cylindrical heat source solution
     CHS := 2*Modelica.Constants.pi*
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.cylindricalHeatSource(
-      tSho[k],
+      tSho[n],
       aSoi,
       rBor,
       rBor);
     // Correct finite line source solution for cylindrical geometry
-    g[k+1] := FLS + (CHS - ILS);
+    g[n+1] := FLS + (CHS - ILS);
   end for;
 
   // ----------------------
@@ -117,8 +117,8 @@ algorithm
         if Done[i,j] < k then
           // Evaluate Real and Mirror parts of FLS solution
           // Real part
-          for m in 1:nSeg loop
-            hSegRea[m] :=
+          for u in 1:nSeg loop
+            hSegRea[u] :=
               IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.finiteLineSource(
               tLon[k + 1],
               aSoi,
@@ -126,12 +126,12 @@ algorithm
               hBor/nSeg,
               dBor,
               hBor/nSeg,
-              dBor + (m - 1)*hBor/nSeg,
+              dBor + (u - 1)*hBor/nSeg,
               includeMirrorSource=false);
           end for;
         // Mirror part
-          for m in 1:(2*nSeg-1) loop
-            hSegMir[m] :=
+          for v in 1:(2*nSeg-1) loop
+            hSegMir[v] :=
               IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.finiteLineSource(
               tLon[k + 1],
               aSoi,
@@ -139,28 +139,28 @@ algorithm
               hBor/nSeg,
               dBor,
               hBor/nSeg,
-              dBor + (m - 1)*hBor/nSeg,
+              dBor + (v - 1)*hBor/nSeg,
               includeRealSource=false);
           end for;
         // Apply to all pairs that have the same separation distance
-          for m in 1:nBor loop
-            for n in m:nBor loop
-              if m == n then
+          for b in 1:nBor loop
+            for h in m:nBor loop
+              if b == h then
                 dis_mn := rLin;
               else
-                dis_mn := sqrt((cooBor[m,1] - cooBor[n,1])^2 + (cooBor[m,2] - cooBor[n,2])^2);
+                dis_mn := sqrt((cooBor[b,1] - cooBor[h,1])^2 + (cooBor[b,2] - cooBor[h,2])^2);
               end if;
               if abs(dis_mn - dis) < relTol*dis then
                 // Add thermal response factor to coefficient matrix A
-                for u in 1:nSeg loop
-                  for v in 1:nSeg loop
-                    A[(m-1)*nSeg+u,(n-1)*nSeg+v] := hSegRea[abs(u-v)+1] + hSegMir[u+v-1];
-                    A[(n-1)*nSeg+v,(m-1)*nSeg+u] := hSegRea[abs(u-v)+1] + hSegMir[u+v-1];
+                for w in 1:nSeg loop
+                  for z in 1:nSeg loop
+                    A[(b-1)*nSeg+w,(h-1)*nSeg+v] := hSegRea[abs(w-z)+1] + hSegMir[w+z-1];
+                    A[(h-1)*nSeg+z,(b-1)*nSeg+u] := hSegRea[abs(w-z)+1] + hSegMir[w+z-1];
                   end for;
                 end for;
                 // Mark current pair as evaluated
-                Done[m,n] := k;
-                Done[n,m] := k;
+                Done[b,h] := k;
+                Done[h,b] := k;
               end if;
             end for;
           end for;
@@ -173,21 +173,21 @@ algorithm
     g[nTimSho+k+1] := X[nBor*nSeg+1];
   end for;
   // Correct finite line source solution for cylindrical geometry
-  for k in 2:nTimLon loop
+  for a in 2:nTimLon loop
     // Infinite line source
     ILS := 0.5*
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.infiniteLineSource(
-      tLon[k],
+      tLon[a],
       aSoi,
       rLin);
     // Cylindrical heat source
     CHS := 2*Modelica.Constants.pi*
       IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.cylindricalHeatSource(
-      tLon[k],
+      tLon[a],
       aSoi,
       rBor,
       rBor);
-    g[nTimSho+k] := g[nTimSho+k] + (CHS - ILS);
+    g[nTimSho+a] := g[nTimSho+a] + (CHS - ILS);
   end for;
 
 annotation (

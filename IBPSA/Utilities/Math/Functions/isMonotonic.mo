@@ -20,8 +20,8 @@ algorithm
           end if;
         end for;
       else
-        for i in 1:n - 1 loop
-          if (not x[i] < x[i + 1]) then
+        for j in 1:n - 1 loop
+          if (not x[j] < x[j + 1]) then
             monotonic := false;
           end if;
         end for;
@@ -29,14 +29,14 @@ algorithm
     else
       // not strict
       if (x[1] >= x[n]) then
-        for i in 1:n - 1 loop
-          if (not x[i] >= x[i + 1]) then
+        for k in 1:n - 1 loop
+          if (not x[k] >= x[k + 1]) then
             monotonic := false;
           end if;
         end for;
       else
-        for i in 1:n - 1 loop
-          if (not x[i] <= x[i + 1]) then
+        for l in 1:n - 1 loop
+          if (not x[l] <= x[l + 1]) then
             monotonic := false;
           end if;
         end for;

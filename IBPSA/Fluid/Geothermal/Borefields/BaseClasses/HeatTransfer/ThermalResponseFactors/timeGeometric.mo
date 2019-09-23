@@ -30,8 +30,8 @@ algorithm
   else
     // Number of time values too large for chosen parameters:
     // Use a constant time step
-    for i in 1:nTim loop
-      t[i] := i*dt;
+    for j in 1:nTim loop
+      t[j] := j*dt;
     end for;
 
   end if;
