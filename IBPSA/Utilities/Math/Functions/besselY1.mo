@@ -51,9 +51,9 @@ algorithm
     xx := ax - 2.356194491;
     coeff1 := P[5];
     coeff2 := Q[5];
-    for i in 1:4 loop
-      coeff1 := P[5-i] + y*coeff1;
-      coeff2 := Q[5-i] + y*coeff2;
+    for j in 1:4 loop
+      coeff1 := P[5-j] + y*coeff1;
+      coeff2 := Q[5-j] + y*coeff2;
     end for;
     Y1 := sqrt(0.636619772/ax)*(sin(xx)*coeff1 + z*cos(xx)*coeff2)*sign(x);
   end if;

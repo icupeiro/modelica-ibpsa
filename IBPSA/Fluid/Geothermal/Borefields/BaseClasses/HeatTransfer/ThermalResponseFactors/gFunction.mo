@@ -91,11 +91,11 @@ algorithm
   // ----------------------
   // Initialize coefficient matrix A
   for m in 1:nBor loop
-    for u in 1:nSeg loop
+    for l in 1:nSeg loop
       // Tb coefficient in spatial superposition equations
-      A[(m-1)*nSeg+u,nBor*nSeg+1] := -1;
+      A[(m-1)*nSeg+l,nBor*nSeg+1] := -1;
       // Q coefficient in heat balance equation
-      A[nBor*nSeg+1,(m-1)*nSeg+u] := 1;
+      A[nBor*nSeg+1,(m-1)*nSeg+l] := 1;
     end for;
   end for;
   // Initialize coefficient vector B
