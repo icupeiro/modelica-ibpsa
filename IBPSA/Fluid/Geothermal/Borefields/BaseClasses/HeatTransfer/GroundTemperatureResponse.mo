@@ -7,6 +7,9 @@ model GroundTemperatureResponse "Model calculating discrete load aggregation"
   parameter Integer nCel(min=1)=5 "Number of cells per aggregation level";
   parameter Boolean forceGFunCalc = false
     "Set to true to force the thermal response to be calculated at the start instead of checking whether it has been pre-computed";
+
+  discrete Modelica.SIunits.HeatFlowRate[i] QAgg_flow
+    "Vector of aggregated loads";
   parameter IBPSA.Fluid.Geothermal.Borefields.Data.Borefield.Template borFieDat
     "Record containing all the parameters of the borefield model" annotation (
       choicesAllMatching=true, Placement(transformation(extent={{-80,-80},{-60,
@@ -64,9 +67,6 @@ protected
   final parameter Real[nbTem, i] kappa(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
-
-  discrete Modelica.SIunits.HeatFlowRate[i] QAgg_flow
-    "Vector of aggregated loads";
   discrete Modelica.SIunits.HeatFlowRate[i] QAggShi_flow
     "Shifted vector of aggregated loads";
   discrete Integer curCel "Current occupied cell";

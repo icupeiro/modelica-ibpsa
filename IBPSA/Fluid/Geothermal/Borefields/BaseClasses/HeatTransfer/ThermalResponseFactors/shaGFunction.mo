@@ -12,7 +12,6 @@ function shaGFunction
   input Integer nTimSho "Number of time steps in short time region";
   input Integer nTimLon "Number of time steps in long time region";
   input Real ttsMax "Maximum adimensional time for gfunc calculation";
-  input Real r "Distance from the borehole wall at which the soil temperature is evaluated";
 
   output String sha
   "SHA1 encryption of the g-function arguments";
@@ -30,11 +29,11 @@ algorithm
   sha := IBPSA.Utilities.Cryptographics.sha(sha + String(nTimSho, format=formatStrGen));
   sha := IBPSA.Utilities.Cryptographics.sha(sha + String(nTimLon, format=formatStrGen));
   sha := IBPSA.Utilities.Cryptographics.sha(sha + String(ttsMax, format=formatStrGen));
-  sha := sha + String(r, format=formatStrGen);
   for i in 1:nBor loop
     sha := IBPSA.Utilities.Cryptographics.sha(sha + String(cooBor[i, 1], format=formatStrCoo));
     sha := IBPSA.Utilities.Cryptographics.sha(sha + String(cooBor[i, 2], format=formatStrCoo));
   end for;
+
 annotation (
 Inline=false,
 Documentation(info="<html>
@@ -56,10 +55,6 @@ The SHA1 encryption is computed using
 </p>
 </html>", revisions="<html>
 <ul>
-<li>
-October 18, 2018, by Iago Cupeiro:<br/>
-Added r parameter for computing the ground temperature at different points.
-</li>
 <li>
 September 11, 2018, by Michael Wetter:<br/>
 Refactored implementation to avoid buffer overflow.
