@@ -1,5 +1,6 @@
 Cylindrical
 GroundTemperatureResponse
+GroundTemperatureResponse_Continuous
 LoadAggregation
 ThermalResponseFactors
 Validation
