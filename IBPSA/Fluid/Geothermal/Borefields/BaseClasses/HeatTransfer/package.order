@@ -2,6 +2,7 @@ Cylindrical
 GroundTemperatureResponse
 GroundTemperatureResponse_Continuous
 GroundTemperatureResponse_ContinuousCSV
+GroundTemperatureResponse_ContinuousRecord
 LoadAggregation
 ThermalResponseFactors
 Validation
