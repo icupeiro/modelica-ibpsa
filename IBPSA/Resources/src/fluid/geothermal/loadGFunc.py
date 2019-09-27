@@ -10,6 +10,9 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 import datetime
 import pygfunction as gt
+from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
 
 
 def writeRecord(tSer,gFunc):
@@ -58,6 +61,31 @@ def writeRecord(tSer,gFunc):
         f.write('end ' + name + ';')
 
 
+def cyclicGFunc(time, gFunc, time2, gFunc2, nYears):
+    kappa = gFunc[1:] - gFunc[:-1]
+    gFuncCyclic = np.zeros_like(gFunc)
+    kappaCyclic = np.zeros_like(kappa)
+    y = 8760*3600.  # 1 year
+    f = interp1d(time2, gFunc2)
+
+
+    for i in range(len(kappa)):
+        if time[i+1] < y:
+            kappaCyclic[i] = kappa[i]
+            for j in range(1, nYears):
+                kappaCyclic[i] = kappaCyclic[i] + f(time[i+1] + j*y) - f(time[i] + j*y)
+        elif time[i] < y:
+            kappaCyclic[i] = kappa[i] + f(nYears*y) - f((nYears-1)*y)
+            for j in range(1, nYears-1):
+                kappaCyclic[i] = kappaCyclic[i] + f(time[i+1] + j*y) - f(time[i] + j*y)
+        else:
+            kappaCyclic[i] = f(time[i+1] + (nYears-1)*y) - f(time[i] + (nYears-1)*y)
+
+    gFuncCyclic[1:] = np.cumsum(kappaCyclic)
+    
+    return gFuncCyclic
+
+
 def main():
     # -------------------------------------------------------------------------
     # Simulation parameters
@@ -84,12 +112,13 @@ def main():
     nt = 75						   # Number of time steps
     ts = H**2/(9.*aSoi)            # Bore field characteristic time
     #ttsMax = np.exp(5)
-    ydes = 25.						# Design projected period (years)
+    ydes = 25						# Design projected period (years)
     dt = 3600.		                # (Control) Time step (s)
     tmax = ydes * 8760. * 3600.     # Maximum time
     #tmax = ttsMax*ts                # Maximum time
 
     time = gt.utilities.time_geometric(dt, tmax, nt)
+    time2 = gt.utilities.time_geometric(dt, 2*tmax, 2*nt)
     # -------------------------------------------------------------------------
     # Borehole fields
     # -------------------------------------------------------------------------
@@ -101,6 +130,8 @@ def main():
     boreField = gt.boreholes.rectangle_field(N_1, N_2, B, B, H, D, r_b)
     gFunc = gt.gfunction.uniform_temperature(boreField, time, aSoi, nSegments=nSegments, disp=True)
     gFunc = gFunc / (2*np.pi*kSoi*H*nBor)
+    gFunc2 = gt.gfunction.uniform_temperature(boreField, time2, aSoi, nSegments=nSegments, disp=True)
+    gFunc2 = gFunc2 / (2*np.pi*kSoi*H*nBor)
 
     #plt.plot(tLon, gFunc)
     #plt.show()
@@ -108,10 +139,36 @@ def main():
     #Adding zero as the first element
     time = np.insert(time, 0, 0)
     gFunc = np.insert(gFunc, 0, 0)
+    time2 = np.insert(time2, 0, 0)
+    gFunc2 = np.insert(gFunc2, 0, 0)
 
     print(time)
+    gFuncCyclic = cyclicGFunc(time, gFunc, time2, gFunc2, ydes)
 
     writeRecord(time,gFunc)
+
+    # -------------------------------------------------------------------------
+    # Figure
+    # -------------------------------------------------------------------------
+
+    plt.rc('figure')
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+    # Axis labels
+    ax1.set_xlabel(r'$ln(t/t_s)$')
+    ax1.set_ylabel(r'$g(t/t_s)$')
+    # Axis limits
+    ax1.set_xlim([-10.0, 5.0])
+    ax1.set_ylim([0., 20.])
+    # Show minor ticks
+    ax1.xaxis.set_minor_locator(AutoMinorLocator())
+    ax1.yaxis.set_minor_locator(AutoMinorLocator())
+    # Adjust to plot window
+    plt.tight_layout()
+    # Draw g-function
+    ax1.plot(np.log(time2[1:]/ts), gFunc2[1:]*(2*np.pi*kSoi*H*nBor), 'k-', lw=1.5, label='Regular')
+    ax1.plot(np.log(time[1:]/ts), gFuncCyclic[1:]*(2*np.pi*kSoi*H*nBor), 'r--', lw=1.5, label='Cyclic')
+    ax1.legend(loc='upper left')
 
     return
 
