@@ -89,6 +89,7 @@ initial equation
 
 equation
   assert(size(gFunc.timExp,1) == size(gFunc.gFunc,1), "The size of the time series and the g-function does not match", AssertionLevel.error);
+  assert(size(gFunc.timExp,1) == size(gFunc.gFunc,1), "The size of the time series and the g-function does not match", AssertionLevel.error);
   delTBor = QAgg_flow[:]*kappa[:];
 
 //    // "Upwind" scheme
