@@ -24,7 +24,7 @@ model GroundTemperatureResponse_ContinuousRecord
    Modelica.SIunits.HeatFlowRate[i] QFace
      "Vector of cell face values of aggregated loads";
 
-  Data.GFunctions.SquareConfig_9bor_3x3_B6 gFunc
+  parameter IBPSA.Fluid.Geothermal.Borefields.Data.GFunctions.Template  gFunc
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
