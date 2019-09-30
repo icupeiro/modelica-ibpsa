@@ -1,21 +1,15 @@
 within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer;
 model GroundTemperatureResponse "Model calculating discrete load aggregation"
-  parameter Modelica.SIunits.Distance r[:]
-    "Radial distance from borehole wall at which the soil temperature is evaluated";
   parameter Modelica.SIunits.Time tLoaAgg(final min = Modelica.Constants.eps)=3600
     "Time resolution of load aggregation";
   parameter Integer nCel(min=1)=5 "Number of cells per aggregation level";
   parameter Boolean forceGFunCalc = false
     "Set to true to force the thermal response to be calculated at the start instead of checking whether it has been pre-computed";
-
-  discrete Modelica.SIunits.HeatFlowRate[i] QAgg_flow
-    "Vector of aggregated loads";
   parameter IBPSA.Fluid.Geothermal.Borefields.Data.Borefield.Template borFieDat
     "Record containing all the parameters of the borefield model" annotation (
-      choicesAllMatching=true, Placement(transformation(extent={{-80,-80},{-60,
-            -60}})));
+     choicesAllMatching=true, Placement(transformation(extent={{-80,-80},{-60,-60}})));
 
-  Modelica.Blocks.Interfaces.RealOutput[nbTem] delTBor(unit="K")
+  Modelica.Blocks.Interfaces.RealOutput delTBor(unit="K")
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-14},{126,12}}),
         iconTransformation(extent={{100,-10},{120,10}})));
@@ -35,9 +29,8 @@ protected
     "Total length of g-function vector";
   constant Real lvlBas = 2 "Base for exponential cell growth between levels";
 
-  parameter String SHAgfun[nbTem]={
+  parameter String SHAgfun=
     IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.shaGFunction(
-      r=r_int[j],
       nBor=borFieDat.conDat.nBor,
       cooBor=borFieDat.conDat.cooBor,
       hBor=borFieDat.conDat.hBor,
@@ -47,7 +40,7 @@ protected
       nSeg=nSeg,
       nTimSho=nTimSho,
       nTimLon=nTimLon,
-      ttsMax=ttsMax) for j in 1:nbTem} "String with encrypted g-function arguments";
+      ttsMax=ttsMax) "String with encrypted g-function arguments";
   parameter Modelica.SIunits.Time timFin=
     (borFieDat.conDat.hBor^2/(9*borFieDat.soiDat.aSoi))*ttsMax
     "Final time for g-function calculation";
@@ -58,45 +51,42 @@ protected
       timFin=timFin,
       tLoaAgg=tLoaAgg)
       "Number of aggregation cells";
-  final parameter Real[nbTem, nTimTot,2] timSer(each fixed=false)
+  final parameter Real[nTimTot,2] timSer(each fixed=false)
     "g-function input from matrix, with the second column as temperature Tstep";
   final parameter Modelica.SIunits.Time t_start(fixed=false) "Simulation start time";
   final parameter Modelica.SIunits.Time[i] nu(each fixed=false)
     "Time vector for load aggregation";
-
-  final parameter Real[nbTem, i] kappa(each fixed=false)
+  final parameter Real[i] kappa(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
+
+  discrete Modelica.SIunits.HeatFlowRate[i] QAgg_flow
+    "Vector of aggregated loads";
   discrete Modelica.SIunits.HeatFlowRate[i] QAggShi_flow
     "Shifted vector of aggregated loads";
   discrete Integer curCel "Current occupied cell";
 
-  discrete Modelica.SIunits.TemperatureDifference[nbTem] delTBor0
+  discrete Modelica.SIunits.TemperatureDifference delTBor0
     "Previous time step's temperature difference current borehole wall temperature minus initial borehole temperature";
-  discrete Real derDelTBor0[nbTem](unit="K/s")
+  discrete Real derDelTBor0(unit="K/s")
     "Derivative of wall temperature change from previous time steps";
-  final parameter Real dTStepdt[nbTem](fixed=false)
+  final parameter Real dTStepdt(fixed=false)
     "Time derivative of g/(2*pi*H*Nb*ks) within most recent cell";
 
   Modelica.SIunits.Heat U "Accumulated heat flow from all boreholes";
   discrete Modelica.SIunits.Heat U_old "Accumulated heat flow from all boreholes at last aggregation step";
-protected
-  final parameter Integer nbTem=size(r,1)+1 "Number of soil temperature";
-  final parameter Real r_int[nbTem]=cat(1,{borFieDat.conDat.rBor},r);
+
 initial equation
   QAgg_flow = zeros(i);
   curCel = 1;
+  delTBor = 0;
   QAggShi_flow = QAgg_flow;
+  delTBor0 = 0;
   U = 0;
   U_old = 0;
-  for j in 1:nbTem loop
-    derDelTBor0[j] = 0;
-    delTBor[j] = 0;
-    delTBor0[j] = 0;
-  end for;
+  derDelTBor0 = 0;
 
-  (nu,rCel) =
-    IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationCellTimes(
+  (nu,rCel) = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationCellTimes(
     i=i,
     lvlBas=lvlBas,
     nCel=nCel,
@@ -105,56 +95,33 @@ initial equation
 
   t_start = time;
 
-  kappa = {
-    IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
+  kappa = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
     i=i,
     nTimTot=nTimTot,
-    TStep=timSer[j, :, :],
-    nu=nu) for j in 1:nbTem};
+    TStep=timSer,
+    nu=nu);
 
-  for j in 1:nbTem loop
-    dTStepdt[j] = kappa[j,1]/tLoaAgg;
-  end for;
+  dTStepdt = kappa[1]/tLoaAgg;
 
-  timSer[1, :, :] =
+  timSer =
     IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temperatureResponseMatrix(
-    nBor=borFieDat.conDat.nBor,
-    cooBor=borFieDat.conDat.cooBor,
-    hBor=borFieDat.conDat.hBor,
-    dBor=borFieDat.conDat.dBor,
-    rBor=borFieDat.conDat.rBor,
-    aSoi=borFieDat.soiDat.aSoi,
-    kSoi=borFieDat.soiDat.kSoi,
-    nSeg=nSeg,
-    nTimSho=nTimSho,
-    nTimLon=nTimLon,
-    nTimTot=nTimTot,
-    ttsMax=ttsMax,
-    sha=SHAgfun[1],
-    forceGFunCalc=forceGFunCalc);
-
-for j in 2:nbTem loop
-
-    timSer[j, :, :] =
-      IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temperatureResponseMatrixSoil(
+      nBor=borFieDat.conDat.nBor,
+      cooBor=borFieDat.conDat.cooBor,
       hBor=borFieDat.conDat.hBor,
       dBor=borFieDat.conDat.dBor,
       rBor=borFieDat.conDat.rBor,
-      r=r_int[j],
       aSoi=borFieDat.soiDat.aSoi,
       kSoi=borFieDat.soiDat.kSoi,
+      nSeg=nSeg,
       nTimSho=nTimSho,
       nTimLon=nTimLon,
       nTimTot=nTimTot,
       ttsMax=ttsMax,
-      sha=SHAgfun[j],
+      sha=SHAgfun,
       forceGFunCalc=forceGFunCalc);
-end for;
 
 equation
-  for j in 1:nbTem loop
-    der(delTBor[j]) = dTStepdt[j]*QBor_flow + derDelTBor0[j];
-  end for;
+  der(delTBor) = dTStepdt*QBor_flow + derDelTBor0;
   der(U) = QBor_flow;
 
   when sample(t_start, tLoaAgg) then
@@ -165,8 +132,7 @@ equation
     // Store (U - pre(U_old))/tLoaAgg in QAgg_flow[1], and pre(QAggShi_flow) in the other elements
     QAgg_flow = cat(1, {(U - pre(U_old))/tLoaAgg}, pre(QAggShi_flow[2:end]));
     // Shift loads in aggregation cells
-    (curCel,QAggShi_flow) =
-      IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.shiftAggregationCells(
+    (curCel,QAggShi_flow) = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.shiftAggregationCells(
       i=i,
       QAgg_flow=QAgg_flow,
       rCel=rCel,
@@ -175,20 +141,16 @@ equation
 
     // Determine the temperature change at the next aggregation step (assuming
     // no loads until then)
-    for j in 1:nbTem loop
-      delTBor0[j] =
-        IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temporalSuperposition(
-        i=i,
-        QAgg_flow=QAggShi_flow,
-        kappa=kappa[j, :],
-        curCel=curCel);
-    derDelTBor0[j] = (delTBor0[j]-delTBor[j])/tLoaAgg;
-    end for;
+    delTBor0 = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temporalSuperposition(
+      i=i,
+      QAgg_flow=QAggShi_flow,
+      kappa=kappa,
+      curCel=curCel);
 
+    derDelTBor0 = (delTBor0-delTBor)/tLoaAgg;
   end when;
 
-    annotation (Line(points={{-120,60},{-120,60}}, color={0,0,127}),
-              Icon(coordinateSystem(preserveAspectRatio=false), graphics={
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
         Rectangle(
           extent={{-100,100},{100,-100}},
           lineColor={0,0,0},
