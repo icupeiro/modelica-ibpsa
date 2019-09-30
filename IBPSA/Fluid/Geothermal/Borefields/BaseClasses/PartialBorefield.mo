@@ -80,7 +80,7 @@ partial model PartialBorefield
     "Average borehole wall temperature in the borefield"
     annotation (Placement(transformation(extent={{100,34},{120,54}})));
 
-  IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.GroundTemperatureResponse groTemRes(
+  replaceable IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.GroundTemperatureResponse groTemRes(
     final tLoaAgg=tLoaAgg,
     final nCel=nCel,
     final borFieDat=borFieDat,
