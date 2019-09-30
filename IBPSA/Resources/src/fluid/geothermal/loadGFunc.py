@@ -62,26 +62,16 @@ def writeRecord(tSer,gFunc):
 
 
 def cyclicGFunc(time, gFunc, time2, gFunc2, nYears):
-    kappa = gFunc[1:] - gFunc[:-1]
     gFuncCyclic = np.zeros_like(gFunc)
-    kappaCyclic = np.zeros_like(kappa)
     y = 8760*3600.  # 1 year
     f = interp1d(time2, gFunc2)
 
-
-    for i in range(len(kappa)):
-        if time[i+1] < y:
-            kappaCyclic[i] = kappa[i]
-            for j in range(1, nYears):
-                kappaCyclic[i] = kappaCyclic[i] + f(time[i+1] + j*y) - f(time[i] + j*y)
-        elif time[i] < y:
-            kappaCyclic[i] = kappa[i] + f(nYears*y) - f((nYears-1)*y)
-            for j in range(1, nYears-1):
-                kappaCyclic[i] = kappaCyclic[i] + f(time[i+1] + j*y) - f(time[i] + j*y)
+    for i in range(len(gFunc)):
+        if time[i] < y:
+            for j in range(nYears+1):
+                gFuncCyclic[i] = gFuncCyclic[i] + f(time[i]+j*y) - f(time[0]+j*y)
         else:
-            kappaCyclic[i] = f(time[i+1] + (nYears-1)*y) - f(time[i] + (nYears-1)*y)
-
-    gFuncCyclic[1:] = np.cumsum(kappaCyclic)
+            gFuncCyclic[i] = f(time[i]+nYears*y)
     
     return gFuncCyclic
 
@@ -133,16 +123,12 @@ def main():
     gFunc2 = gt.gfunction.uniform_temperature(boreField, time2, aSoi, nSegments=nSegments, disp=True)
     gFunc2 = gFunc2 / (2*np.pi*kSoi*H*nBor)
 
-    #plt.plot(tLon, gFunc)
-    #plt.show()
-
     #Adding zero as the first element
     time = np.insert(time, 0, 0)
     gFunc = np.insert(gFunc, 0, 0)
     time2 = np.insert(time2, 0, 0)
     gFunc2 = np.insert(gFunc2, 0, 0)
 
-    print(time)
     gFuncCyclic = cyclicGFunc(time, gFunc, time2, gFunc2, ydes)
 
     writeRecord(time,gFunc)
