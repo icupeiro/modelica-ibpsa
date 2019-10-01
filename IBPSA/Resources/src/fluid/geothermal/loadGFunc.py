@@ -68,10 +68,10 @@ def cyclicGFunc(time, gFunc, time2, gFunc2, nYears):
 
     for i in range(len(gFunc)):
         if time[i] < y:
-            for j in range(nYears+1):
-                gFuncCyclic[i] = gFuncCyclic[i] + f(time[i]+j*y) - f(time[0]+j*y)
+            for j in range(nYears):
+                gFuncCyclic[i] = gFuncCyclic[i] + f(time[i]+j*y) - f(j*y)
         else:
-            gFuncCyclic[i] = f(time[i]+nYears*y)
+            gFuncCyclic[i] = f(time[i]+(nYears-1)*y)
     
     return gFuncCyclic
 
@@ -108,7 +108,7 @@ def main():
     #tmax = ttsMax*ts                # Maximum time
 
     time = gt.utilities.time_geometric(dt, tmax, nt)
-    time2 = gt.utilities.time_geometric(dt, 2*tmax, 2*nt)
+    time2 = gt.utilities.time_geometric(dt, tmax+(ydes-1)*8760.*3600., 2*nt)
     # -------------------------------------------------------------------------
     # Borehole fields
     # -------------------------------------------------------------------------
