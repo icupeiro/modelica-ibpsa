@@ -10,7 +10,10 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 import datetime
 import pygfunction as gt
+from scipy.constants import pi
+from scipy.integrate import quad
 from scipy.interpolate import interp1d
+from scipy.special import j0, j1, y0, y1, exp1
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 
@@ -76,6 +79,25 @@ def cyclicGFunc(time, gFunc, time2, gFunc2, nYears):
     return gFuncCyclic
 
 
+def shortTermCorrection(time, gFunc, r_b, aSoi):
+    
+    def _CHS(u, Fo, p):
+        CHS_integrand = 1./(u**2*pi**2)*(np.exp(-u**2*Fo) - 1.0) / (j1(u)**2 + y1(u)**2) * (j0(p*u)*y1(u) - j1(u)*y0(p*2))
+        return CHS_integrand
+    
+    def _ILS(t, aSoi, dis):
+        ILS = exp1(dis**2/(4*aSoi*t))
+        return ILS
+
+    for i in range(len(time)):
+        ILS = _ILS(time[i], aSoi, r_b)
+        CHS, err = quad(
+            _CHS, 1e-12, 100., args=(aSoi*time[i]/r_b**2, 1.))
+        gFunc[i] = gFunc[i] + 2*pi*CHS - 0.5*ILS
+
+    return gFunc
+
+
 def main():
     # -------------------------------------------------------------------------
     # Simulation parameters
@@ -119,8 +141,10 @@ def main():
     nBor = N_1*N_2
     boreField = gt.boreholes.rectangle_field(N_1, N_2, B, B, H, D, r_b)
     gFunc = gt.gfunction.uniform_temperature(boreField, time, aSoi, nSegments=nSegments, disp=True)
+    gFunc = shortTermCorrection(time, gFunc, r_b, aSoi)
     gFunc = gFunc / (2*np.pi*kSoi*H*nBor)
     gFunc2 = gt.gfunction.uniform_temperature(boreField, time2, aSoi, nSegments=nSegments, disp=True)
+    gFunc2 = shortTermCorrection(time2, gFunc2, r_b, aSoi)
     gFunc2 = gFunc2 / (2*np.pi*kSoi*H*nBor)
 
     #Adding zero as the first element
