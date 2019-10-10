@@ -79,6 +79,14 @@ def cyclicGFunc(time, gFunc, time2, gFunc2, nYears):
     return gFuncCyclic
 
 
+def averageGFunc(time, gFunc, time2, gFunc2, nYears):
+    gFuncAverage = 1./nYears*gFunc
+    for n in range(2, nYears+1):
+        gFuncAverage += 1./nYears*cyclicGFunc(time, gFunc, time2, gFunc2, n)
+    
+    return gFuncAverage
+
+
 def shortTermCorrection(time, gFunc, r_b, aSoi):
     
     def _CHS(u, Fo, p):
@@ -154,6 +162,7 @@ def main():
     gFunc2 = np.insert(gFunc2, 0, 0)
 
     gFuncCyclic = cyclicGFunc(time, gFunc, time2, gFunc2, ydes)
+    gFuncAverage = averageGFunc(time, gFunc, time2, gFunc2, ydes)
 
     writeRecord(time,gFunc)
 
@@ -178,6 +187,7 @@ def main():
     # Draw g-function
     ax1.plot(np.log(time2[1:]/ts), gFunc2[1:]*(2*np.pi*kSoi*H*nBor), 'k-', lw=1.5, label='Regular')
     ax1.plot(np.log(time[1:]/ts), gFuncCyclic[1:]*(2*np.pi*kSoi*H*nBor), 'r--', lw=1.5, label='Cyclic')
+    ax1.plot(np.log(time[1:]/ts), gFuncAverage[1:]*(2*np.pi*kSoi*H*nBor), 'r-o', lw=1.5, label='Average')
     ax1.legend(loc='upper left')
 
     return
