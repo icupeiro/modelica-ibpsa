@@ -1,5 +1,5 @@
 within IBPSA.Fluid.Geothermal.Borefields.Data.GFunctions;
-partial record Template
+record Template
   "Template for external g-functions data records"
   extends Modelica.Icons.Record;
   parameter Modelica.SIunits.Time[:] timExp

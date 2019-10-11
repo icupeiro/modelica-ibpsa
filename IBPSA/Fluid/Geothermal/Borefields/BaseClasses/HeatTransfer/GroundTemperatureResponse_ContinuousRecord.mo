@@ -26,6 +26,12 @@ model GroundTemperatureResponse_ContinuousRecord
 
   parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFunc
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
+  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncOriginal
+    annotation (Placement(transformation(extent={{-8,-80},{12,-60}})));
+  Modelica.Blocks.Interfaces.RealOutput delTBorOriginal(unit="K")
+    "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
+    annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
+        iconTransformation(extent={{100,-76},{120,-56}})));
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
@@ -61,9 +67,13 @@ protected
       "Number of aggregation cells";
   final parameter Real[size(gFunc.gFunc,1),2] timSer(each fixed=false)
     "g-function input from matrix, with the second column as temperature Tstep";
+  final parameter Real[size(gFuncOriginal.gFunc,1),2] timSerOriginal(each fixed=false)
+    "g-function input from matrix, with the second column as temperature Tstep";
   final parameter Modelica.SIunits.Time[i] nu(each fixed=false)
     "Time vector for load aggregation";
   final parameter Real[i] kappa(each fixed=false)
+    "Weight factor for each aggregation cell";
+  final parameter Real[i] kappaOriginal(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
 
@@ -84,13 +94,23 @@ initial equation
     TStep=timSer,
     nu=nu);
 
+  kappaOriginal = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
+    i=i,
+    nTimTot=nTimTot,
+    TStep=timSerOriginal,
+    nu=nu);
+
   timSer[:,1] = gFunc.timExp[:];
   timSer[:,2] = gFunc.gFunc[:];
+
+  timSerOriginal[:,1] = gFuncOriginal.timExp[:];
+  timSerOriginal[:,2] = gFuncOriginal.gFunc[:];
 
 equation
   assert(size(gFunc.timExp,1) == size(gFunc.gFunc,1), "The size of the time series and the g-function does not match", AssertionLevel.error);
   assert(size(gFunc.timExp,1) == size(gFunc.gFunc,1), "The size of the time series and the g-function does not match", AssertionLevel.error);
   delTBor = QAgg_flow[:]*kappa[:];
+  delTBorOriginal = QAgg_flow[:]*kappaOriginal[:];
 
 //    // "Upwind" scheme
 //    der(QAgg_flow[1]) = -1/(rCel[1]*tLoaAgg)*(QAgg_flow[1] - QBor_flow);
