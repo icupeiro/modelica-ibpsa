@@ -80,11 +80,13 @@ partial model PartialBorefieldContinuous
     "Average borehole wall temperature in the borefield"
     annotation (Placement(transformation(extent={{100,34},{120,54}})));
 
-  HeatTransfer.GroundTemperatureResponse_ContinuousRecord                              groTemRes(
+  HeatTransfer.LoadAggregation.GroundTemperatureResponse_ContinuousRecord              groTemRes(
     final tLoaAgg=tLoaAgg,
     final nCel=nCel,
     final borFieDat=borFieDat,
     final forceGFunCalc=forceGFunCalc,
+    tStep=tStep,
+    intervals=intervals,
     gFunc=gFunc)
     "Ground temperature response"
     annotation (Placement(transformation(extent={{20,70},{40,90}})));
@@ -125,6 +127,12 @@ partial model PartialBorefieldContinuous
     start=0)
     "temperature difference between the original g-function and the cyclic one"
     annotation (Placement(transformation(extent={{100,58},{120,78}})));
+  Modelica.Blocks.Interfaces.RealInput QBor_LT[size(intervals, 1)]
+    annotation (Placement(transformation(extent={{-120,34},{-80,74}})));
+  parameter Modelica.SIunits.Time tStep=604800
+    "Time-step of the long-term predictions";
+  parameter Real intervals[:]={1,2,3,4,8,12,16,20,24,28,32,36,40,44,48,52}
+    "Array with the long-term intervals to be evaluated";
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";
@@ -224,6 +232,8 @@ equation
           41,73.4},{41,54.8},{78.6,54.8}}, color={0,0,127}));
   connect(groTemRes.QBor_flow, QBor_flow) annotation (Line(points={{19,80},{14,
           80},{14,98},{90,98},{90,90},{110,90}}, color={0,0,127}));
+  connect(groTemRes.QBor_LT, QBor_LT) annotation (Line(points={{19,77},{8,77},{
+          8,64},{-6,64},{-6,54},{-100,54}}, color={0,0,127}));
   annotation (
     Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
         graphics={
