@@ -127,7 +127,7 @@ partial model PartialBorefieldContinuous
     start=0)
     "temperature difference between the original g-function and the cyclic one"
     annotation (Placement(transformation(extent={{100,58},{120,78}})));
-  Modelica.Blocks.Interfaces.RealInput QBor_LT[size(intervals, 1)]
+  Modelica.Blocks.Interfaces.RealInput QBor_LT[size(intervals, 1) - 1]
     annotation (Placement(transformation(extent={{-120,34},{-80,74}})));
   parameter Modelica.SIunits.Time tStep=604800
     "Time-step of the long-term predictions";
