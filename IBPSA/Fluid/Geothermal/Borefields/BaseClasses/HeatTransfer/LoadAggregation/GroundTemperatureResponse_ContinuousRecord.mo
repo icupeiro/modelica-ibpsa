@@ -47,6 +47,9 @@ model GroundTemperatureResponse_ContinuousRecord
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
         iconTransformation(extent={{100,-76},{120,-56}})));
+  Modelica.Thermal.HeatTransfer.Components.HeatCapacitor timeStep(C=Modelica.Constants.inf,
+      T(start=273.15))
+    annotation (Placement(transformation(extent={{-80,62},{-60,82}})));
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
@@ -137,17 +140,17 @@ equation
   delTBor = QAgg_flow[:]*kappa[:];
   delTBorOriginal = QAgg_flow[:]*kappaOriginal[:];
 
+  curTime = timeStep.port.T;
   for j in 1:size(intervals,1) loop
-     futTime[j] = time + tStep*intervals[j];
+     futTime[j] = curTime + tStep*intervals[j];
   end for;
-  curTime = time;
 
   for j in 1:size(intervals,1)-1 loop
-       kappa_LT[1,j] = Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - curTime + nu[1])
-                     - Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - curTime);
+       kappa_LT[1,j] = Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[1])
+                     - Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time);
        for k in 2:i loop
-       kappa_LT[k,j] = Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - curTime + nu[k])
-                     - Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - curTime + nu[k-1]);
+       kappa_LT[k,j] = Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k])
+                     - Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k-1]);
      end for;
   end for;
 
