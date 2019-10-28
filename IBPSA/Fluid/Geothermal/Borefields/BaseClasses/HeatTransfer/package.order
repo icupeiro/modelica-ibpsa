@@ -6,3 +6,4 @@ GroundTemperatureResponse_ContinuousRecord
 LoadAggregation
 ThermalResponseFactors
 Validation
+interpolate
