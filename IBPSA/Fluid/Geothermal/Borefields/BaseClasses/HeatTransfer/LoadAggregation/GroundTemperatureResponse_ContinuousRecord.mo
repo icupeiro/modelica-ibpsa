@@ -26,15 +26,15 @@ model GroundTemperatureResponse_ContinuousRecord
 
   parameter Modelica.SIunits.Time tStep = 604800
   "Time-step of the long-term predictions";
-  parameter Real[:] intervals = {1,2,3,4,8,12,16,20,24,28,32,36,40,44,48,52}
+  parameter Real[16] intervals = {1,2,3,4,8,12,16,20,24,28,32,36,40,44,48,52}
   "Array with the long-term intervals to be evaluated";
-  Modelica.SIunits.TemperatureDifference[size(intervals,1)-1] delTBor_LT
+  Modelica.SIunits.TemperatureDifference[16-1] delTBor_LT
   "Array with the long-term predictions of deltaT";
-  Real[i, size(intervals,1)-1] kappa_LT(each fixed=false)
+  Real[i, 16-1] kappa_LT(each fixed=false)
     "Weight factor for each aggregation cell for long-term predictions";
-  Modelica.SIunits.Time[size(intervals,1)] futTime;
+  Modelica.SIunits.Time[16] futTime;
   Modelica.SIunits.Time curTime;
-  Modelica.Blocks.Interfaces.RealInput[size(intervals,1)-1] QBor_LT(unit="W")
+  Modelica.Blocks.Interfaces.RealInput[16-1] QBor_LT(unit="W")
   "Long-term prediction of the ground loads"
     annotation (Placement(transformation(extent={{-120,-40},{-100,-20}}),
         iconTransformation(extent={{-120,-40},{-100,-20}})));
@@ -86,7 +86,7 @@ protected
     "g-function input from matrix, with the second column as temperature Tstep";
   final parameter Modelica.SIunits.Time[i] nu(each fixed=false)
     "Time vector for load aggregation";
-  final parameter Modelica.SIunits.Time[i,size(intervals,1)] nu_LT(each fixed=false)
+  final parameter Modelica.SIunits.Time[i,16] nu_LT(each fixed=false)
     "Time vector for load aggregation for long-term predictions, i.e. start point is increased";
   final parameter Real[i] kappa(each fixed=false)
     "Weight factor for each aggregation cell";
@@ -94,7 +94,7 @@ protected
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
 
-  Real[size(intervals,1)-1,size(intervals,1)-1] deltaG
+  Real[16-1,16-1] deltaG
   "Evaluation of the g-function at the long-term intervals";
 
 initial equation
@@ -108,7 +108,7 @@ initial equation
     tLoaAgg=tLoaAgg,
     timFin=timFin);
 
-  for j in 1:size(intervals,1) loop
+  for j in 1:16 loop
     nu_LT[:,j] = nu[:] + tStep*intervals[j]*ones(i);
   end for;
 
@@ -130,7 +130,7 @@ initial equation
 
   timSerOriginal[:,1] = gFuncOriginal.timExp[:];
   timSerOriginal[:,2] = gFuncOriginal.gFunc[:];
-  
+
   curTime = time;
 
 equation
@@ -141,11 +141,11 @@ equation
 
   //curTime = 0;
   der(curTime) = 0;
-  for j in 1:size(intervals,1) loop
+  for j in 1:16 loop
      futTime[j] = curTime + tStep*intervals[j];
   end for;
 
-  for j in 1:size(intervals,1)-1 loop
+  for j in 1:16-1 loop
        kappa_LT[1,j] = Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[1])
                      - Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time);
        for k in 2:i loop
@@ -154,17 +154,17 @@ equation
      end for;
   end for;
 
-  for k in 1:size(intervals,1)-1 loop
+  for k in 1:16-1 loop
     for j in 1:k loop
       deltaG[j,k] = Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[k+1]-intervals[j]))
                   - Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[k+1]-intervals[j+1]));
     end for;
-    for j in k+1:size(intervals,1)-1 loop
+    for j in k+1:16-1 loop
       deltaG[j,k] = 0;
     end for;
   end for;
 
-  for i in 1:size(intervals,1)-1 loop
+  for i in 1:16-1 loop
     delTBor_LT[i] = QAgg_flow[:]*kappa_LT[:,i] + QBor_LT[:]*deltaG[:,i];
   end for;
 
