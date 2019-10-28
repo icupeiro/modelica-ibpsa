@@ -80,9 +80,9 @@ protected
       timFin=timFin,
       tLoaAgg=tLoaAgg)
       "Number of aggregation cells";
-  final parameter Real[size(gFunc.gFunc,1),2] timSer(each fixed=false)
+  final parameter Real[76,2] timSer(each fixed=false)
     "g-function input from matrix, with the second column as temperature Tstep";
-  final parameter Real[size(gFuncOriginal.gFunc,1),2] timSerOriginal(each fixed=false)
+  final parameter Real[76,2] timSerOriginal(each fixed=false)
     "g-function input from matrix, with the second column as temperature Tstep";
   final parameter Modelica.SIunits.Time[i] nu(each fixed=false)
     "Time vector for load aggregation";
@@ -134,8 +134,8 @@ initial equation
   curTime = time;
 
 equation
-  assert(size(gFunc.timExp,1) == size(gFunc.gFunc,1), "The size of the time series and the g-function does not match", AssertionLevel.error);
-  assert(size(gFunc.timExp,1) == size(gFunc.gFunc,1), "The size of the time series and the g-function does not match", AssertionLevel.error);
+  assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
+  assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
   delTBor = QAgg_flow[:]*kappa[:];
   delTBorOriginal = QAgg_flow[:]*kappaOriginal[:];
 
