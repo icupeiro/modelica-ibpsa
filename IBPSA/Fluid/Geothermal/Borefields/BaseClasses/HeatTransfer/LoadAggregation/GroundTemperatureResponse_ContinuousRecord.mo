@@ -146,18 +146,18 @@ equation
   end for;
 
   for j in 1:16-1 loop
-       kappa_LT[1,j] = Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[1])
-                     - Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time);
+       kappa_LT[1,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[1])
+                     - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time);
        for k in 2:i loop
-       kappa_LT[k,j] = Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k])
-                     - Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k-1]);
+       kappa_LT[k,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k])
+                     - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k-1]);
      end for;
   end for;
 
   for k in 1:16-1 loop
     for j in 1:k loop
-      deltaG[j,k] = Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[k+1]-intervals[j]))
-                  - Modelica.Math.Vectors.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[k+1]-intervals[j+1]));
+      deltaG[j,k] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[k+1]-intervals[j]))
+                  - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[k+1]-intervals[j+1]));
     end for;
     for j in k+1:16-1 loop
       deltaG[j,k] = 0;
