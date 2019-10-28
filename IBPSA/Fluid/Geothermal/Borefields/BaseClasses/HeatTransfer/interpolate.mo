@@ -10,7 +10,7 @@ function interpolate "Interpolate linearly in a vector"
   output Integer iNew=1 "xi is in the interval x[iNew] <= xi < x[iNew+1]";
 protected
   Integer i;
-  Integer nx=size(x, 1);
+  Integer nx=76;
   Real x1;
   Real x2;
   Real y1;
