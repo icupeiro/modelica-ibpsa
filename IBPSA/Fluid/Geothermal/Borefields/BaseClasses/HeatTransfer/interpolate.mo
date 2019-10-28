@@ -1,9 +1,9 @@
 within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer;
 function interpolate "Interpolate linearly in a vector"
   extends Modelica.Icons.Function;
-  input Real x[:]
+  input Real x[76]
     "Abscissa table vector (strict monotonically increasing values required)";
-  input Real y[:] "Ordinate table vector";
+  input Real y[76] "Ordinate table vector";
   input Real xi "Desired abscissa value";
   input Integer iLast=1 "Index used in last search";
   output Real yi "Ordinate value corresponding to xi";
@@ -16,7 +16,7 @@ protected
   Real y1;
   Real y2;
 algorithm
-  assert(nx > 0, "The table vectors must have at least 1 entry.");
+  //assert(nx > 0, "The table vectors must have at least 1 entry.");
   if nx == 1 then
     yi := y[1];
   else
@@ -41,7 +41,7 @@ algorithm
     y1 := y[i];
     y2 := y[i + 1];
 
-    assert(x2 > x1, "Abscissa table vector values must be increasing");
+    //assert(x2 > x1, "Abscissa table vector values must be increasing");
     // Interpolate
     yi := y1 + (y2 - y1)*(xi - x1)/(x2 - x1);
     iNew := i;
