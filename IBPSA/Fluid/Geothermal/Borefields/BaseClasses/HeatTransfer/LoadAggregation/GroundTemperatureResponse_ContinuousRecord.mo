@@ -47,9 +47,6 @@ model GroundTemperatureResponse_ContinuousRecord
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
         iconTransformation(extent={{100,-76},{120,-56}})));
-  Modelica.Thermal.HeatTransfer.Components.HeatCapacitor timeStep(C=Modelica.Constants.inf,
-      T(start=273.15))
-    annotation (Placement(transformation(extent={{-80,62},{-60,82}})));
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
@@ -133,6 +130,8 @@ initial equation
 
   timSerOriginal[:,1] = gFuncOriginal.timExp[:];
   timSerOriginal[:,2] = gFuncOriginal.gFunc[:];
+  
+  curTime = time;
 
 equation
   assert(size(gFunc.timExp,1) == size(gFunc.gFunc,1), "The size of the time series and the g-function does not match", AssertionLevel.error);
@@ -140,7 +139,8 @@ equation
   delTBor = QAgg_flow[:]*kappa[:];
   delTBorOriginal = QAgg_flow[:]*kappaOriginal[:];
 
-  curTime = timeStep.port.T;
+  //curTime = 0;
+  der(curTime) = 0;
   for j in 1:size(intervals,1) loop
      futTime[j] = curTime + tStep*intervals[j];
   end for;
