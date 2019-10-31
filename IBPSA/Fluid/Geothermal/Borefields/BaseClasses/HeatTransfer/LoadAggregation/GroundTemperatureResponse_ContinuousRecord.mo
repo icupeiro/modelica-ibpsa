@@ -34,10 +34,10 @@ model GroundTemperatureResponse_ContinuousRecord
     "Weight factor for each aggregation cell for long-term predictions";
   Modelica.SIunits.Time[16] futTime;
   Modelica.SIunits.Time curTime;
-  Modelica.Blocks.Interfaces.RealInput[16-1] QBor_LT(unit="W")
-  "Long-term prediction of the ground loads"
-    annotation (Placement(transformation(extent={{-120,-40},{-100,-20}}),
-        iconTransformation(extent={{-120,-40},{-100,-20}})));
+  Real wT = IBPSA.Utilities.Math.Functions.spliceFunction(1,0, time-(curTime+6*86400), 86400/4)
+  "weighting function to take only the last value of optimization";
+  Real[16-1] QBor_LT(unit="W")
+  "Long-term prediction of the ground loads";
 
   parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFunc
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
@@ -47,6 +47,34 @@ model GroundTemperatureResponse_ContinuousRecord
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
         iconTransformation(extent={{100,-76},{120,-56}})));
+
+
+  Data.Weather.BESTEST                                   Qbui
+    annotation (Placement(transformation(extent={{0,20},{20,40}})));
+  Modelica.SIunits.HeatFlowRate[15] Qinj
+  "Heat flow injected into the field";
+  Modelica.SIunits.HeatFlowRate[15] Qgb
+  "Gas boiler heat flow";
+  Modelica.SIunits.HeatFlowRate[15] Qcon
+  "Condenser heat flow";
+  Real[15] COP
+  "Heat pump COP";
+  Modelica.SIunits.Temperature[15] TevaOutLT
+  "Steady state prediction of the outlet evaporator temperature";
+  Real[15] costLT
+  "long-term cost";
+  parameter Real electricityPrice;
+  parameter Real gasPrice;
+
+
+  Modelica.Blocks.Interfaces.RealInput Qext[15]
+    annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
+
+  Modelica.SIunits.HeatFlowRate[15] Qbuih
+  "Building heating needs";
+  Modelica.SIunits.HeatFlowRate[15] Qbuic
+  "Building cooling needs";
+
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
@@ -94,7 +122,7 @@ protected
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
 
-  Real[16-1,16-1] deltaG
+  parameter Real[16-1,16-1] deltaG(each fixed=false)
   "Evaluation of the g-function at the long-term intervals";
 
 initial equation
@@ -133,27 +161,6 @@ initial equation
 
   curTime = time;
 
-equation
-  assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
-  assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
-  delTBor = QAgg_flow[:]*kappa[:];
-  delTBorOriginal = QAgg_flow[:]*kappaOriginal[:];
-
-  //curTime = 0;
-  der(curTime) = 0;
-  for j in 1:16 loop
-     futTime[j] = curTime + tStep*intervals[j];
-  end for;
-
-  for j in 1:16-1 loop
-       kappa_LT[1,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[1])
-                     - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time);
-       for k in 2:i loop
-       kappa_LT[k,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k])
-                     - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k-1]);
-     end for;
-  end for;
-
   for k in 1:16-1 loop
     for j in 1:k loop
       deltaG[j,k] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[k+1]-intervals[j]))
@@ -163,6 +170,58 @@ equation
       deltaG[j,k] = 0;
     end for;
   end for;
+
+equation
+  assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
+  assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
+  delTBor = QAgg_flow[:]*kappa[:];
+  delTBorOriginal = QAgg_flow[:]*kappaOriginal[:];
+
+  QBor_LT = Qinj + Qext;
+
+  Qinj = -Qbuic;
+
+  Qbuih = Qgb + Qcon;
+
+  Qcon = (-Qext).*(COP-ones(15))./COP;
+
+  COP = 5.15*ones(15) + 0.1*delTBor_LT;
+  TevaOutLT = 4.46*ones(15) + (6/7)*delTBor_LT;
+
+  curTime = time;
+  //der(curTime) = 0;
+  for j in 1:16 loop
+     futTime[j] = curTime + tStep*intervals[j];
+  end for;
+
+   for j in 2:16 loop
+        Qbuih[j-1] =sum(Qbui.Qbuih[integer(mod(time + intervals[j - 1]*tStep +
+      3600*k, 31536000)/3600 + 1)] for k in 1:(intervals[j] - intervals[j - 1])*
+      tStep/3600)/((intervals[j] - intervals[j - 1])*tStep/3600);
+        Qbuic[j-1] =sum(Qbui.Qbuih[integer(mod(time + intervals[j - 1]*tStep +
+      3600*k, 31536000)/3600 + 1)] for k in 1:(intervals[j] - intervals[j - 1])*
+      tStep/3600)/((intervals[j] - intervals[j - 1])*tStep/3600);
+      costLT[j-1] = (gasPrice/1000*Qgb[j-1] + electricityPrice/1000*(Qcon[j-1]/COP[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
+   end for;
+
+ for j in 1:16-1 loop
+      kappa_LT[1,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j+1] - time + nu[1])
+                    - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j+1] - time);
+      for k in 2:i loop
+      kappa_LT[k,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j+1] - time + nu[k])
+                    - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j+1] - time + nu[k-1]);
+    end for;
+ end for;
+
+
+ // for j in 1:16-1 loop
+ //      kappa_LT[1,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[1])
+ //                    - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time);
+ //      for k in 2:i loop
+ //      kappa_LT[k,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k])
+ //                    - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], futTime[j] - time + nu[k-1]);
+ //    end for;
+ // end for;
 
   for i in 1:16-1 loop
     delTBor_LT[i] = QAgg_flow[:]*kappa_LT[:,i] + QBor_LT[:]*deltaG[:,i];
