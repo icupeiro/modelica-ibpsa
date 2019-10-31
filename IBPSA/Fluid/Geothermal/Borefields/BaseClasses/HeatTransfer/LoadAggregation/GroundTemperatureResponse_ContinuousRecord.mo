@@ -49,7 +49,7 @@ model GroundTemperatureResponse_ContinuousRecord
         iconTransformation(extent={{100,-76},{120,-56}})));
 
 
-  Data.Weather.BESTEST                                   Qbui
+  Data.BuildingLoads.BESTEST Qbui
     annotation (Placement(transformation(extent={{0,20},{20,40}})));
   Modelica.SIunits.HeatFlowRate[15] Qinj
   "Heat flow injected into the field";
@@ -188,8 +188,8 @@ equation
   COP = 5.15*ones(15) + 0.1*delTBor_LT;
   TevaOutLT = 4.46*ones(15) + (6/7)*delTBor_LT;
 
-  curTime = time;
-  //der(curTime) = 0;
+  //curTime = time;
+  der(curTime) = 0;
   for j in 1:16 loop
      futTime[j] = curTime + tStep*intervals[j];
   end for;
