@@ -74,7 +74,7 @@ model GroundTemperatureResponse_ContinuousRecord
   "Building heating needs";
   Modelica.SIunits.HeatFlowRate[15] Qbuic
   "Building cooling needs";
-  final parameter Real[8760,3] Qbui(each fixed=false);
+  final parameter Real[365,3] Qbui(each fixed=false);
 
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
@@ -160,7 +160,7 @@ initial equation
   timSerOriginal[:,1] = gFuncOriginal.timExp[:];
   timSerOriginal[:,2] = gFuncOriginal.gFunc[:];
 
-  Qbui[:,1] = buiNeeds.tim[:];
+  Qbui[:,1] = buiNeeds.hou[:];
   Qbui[:,2] = buiNeeds.Qbuih[:];
   Qbui[:,3] = buiNeeds.Qbuic[:];
 
@@ -200,9 +200,9 @@ equation
   end for;
 
    for j in 2:16 loop
-      Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((curTime + intervals[j-1]*tStep + k*tStep)/3600,8760)) for k in 1:(intervals[j]-intervals[j-1])*tStep/3600);
-      Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((curTime + intervals[j-1]*tStep + k*tStep)/3600,8760)) for k in 1:(intervals[j]-intervals[j-1])*tStep/3600);
-      costLT[j-1] = (gasPrice/1000*Qgb[j-1] + electricityPrice/1000*(Qcon[j-1]/COP[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
+      Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((curTime + intervals[j-1]*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400);
+      Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((curTime + intervals[j-1]*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400);
+      costLT[j-1] = (gasPrice/1000*Qgb[j-1] + electricityPrice/1000*(Qcon[j-1]/COP[j-1]))*((intervals[j] - intervals[j - 1])*tStep/86400);
    end for;
 
 //         Qbuih[j-1] =sum(buiNeeds.Qbuih[integer(mod(time + intervals[j - 1]*

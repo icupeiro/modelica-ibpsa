@@ -1,16 +1,16 @@
 within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer;
 function interpolateVector "Interpolate linearly in a vector"
   extends Modelica.Icons.Function;
-  input Real x[8760]
+  input Real x[365]
     "Abscissa table vector (strict monotonically increasing values required)";
-  input Real y[8760] "Ordinate table vector";
+  input Real y[365] "Ordinate table vector";
   input Real xi "Desired abscissa value";
   input Integer iLast=1 "Index used in last search";
   output Real yi "Ordinate value corresponding to xi";
   output Integer iNew=1 "xi is in the interval x[iNew] <= xi < x[iNew+1]";
 protected
   Integer i;
-  Integer nx=8760;
+  Integer nx=365;
   Real x1;
   Real x2;
   Real y1;
