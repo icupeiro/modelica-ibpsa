@@ -200,8 +200,8 @@ equation
   end for;
 
    for j in 2:16 loop
-      Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(Qbui[:,1], Qbui[:,2], mod((curTime + intervals[j-1]*tStep + k*tStep)/3600,8760)) for k in 1:(intervals[j]-intervals[j-1])*tStep/3600);
-      Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(Qbui[:,1], Qbui[:,3], mod((curTime + intervals[j-1]*tStep + k*tStep)/3600,8760)) for k in 1:(intervals[j]-intervals[j-1])*tStep/3600);
+      Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((curTime + intervals[j-1]*tStep + k*tStep)/3600,8760)) for k in 1:(intervals[j]-intervals[j-1])*tStep/3600);
+      Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((curTime + intervals[j-1]*tStep + k*tStep)/3600,8760)) for k in 1:(intervals[j]-intervals[j-1])*tStep/3600);
       costLT[j-1] = (gasPrice/1000*Qgb[j-1] + electricityPrice/1000*(Qcon[j-1]/COP[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
    end for;
 
