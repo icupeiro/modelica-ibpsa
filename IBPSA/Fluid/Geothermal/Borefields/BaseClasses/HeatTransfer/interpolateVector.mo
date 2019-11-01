@@ -18,19 +18,19 @@ protected
 algorithm
   //assert(nx > 0, "The table vectors must have at least 1 entry.");
     if nx == 1 then
-      yi[j] := y[1];
+      yi := y[1];
     else
     // Search interval
     i := min(max(iLast, 1), nx - 1);
-    if xi[j] >= x[i] then
+    if xi >= x[i] then
       // search forward
-      while i < nx and xi[j] >= x[i] loop
+      while i < nx and xi >= x[i] loop
         i := i + 1;
       end while;
       i := i - 1;
     else
       // search backward
-      while i > 1 and xi[j] < x[i] loop
+      while i > 1 and xi < x[i] loop
         i := i - 1;
       end while;
     end if;
@@ -43,7 +43,7 @@ algorithm
 
     //assert(x2 > x1, "Abscissa table vector values must be increasing");
     // Interpolate
-    yi[j] := y1 + (y2 - y1)*(xi[j] - x1)/(x2 - x1);
+    yi := y1 + (y2 - y1)*(xi - x1)/(x2 - x1);
     iNew := i;
   end if;
 
