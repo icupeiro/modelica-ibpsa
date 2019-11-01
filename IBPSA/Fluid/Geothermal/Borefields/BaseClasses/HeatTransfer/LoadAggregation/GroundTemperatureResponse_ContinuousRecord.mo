@@ -53,9 +53,9 @@ model GroundTemperatureResponse_ContinuousRecord
     annotation (Placement(transformation(extent={{0,20},{20,40}})));
   Modelica.SIunits.HeatFlowRate[15] Qinj
   "Heat flow injected into the field";
-  Modelica.SIunits.HeatFlowRate[15] Qgb
+  Modelica.SIunits.HeatFlowRate[15] Qgb(min=0)
   "Gas boiler heat flow";
-  Modelica.SIunits.HeatFlowRate[15] Qcon
+  Modelica.SIunits.HeatFlowRate[15] Qcon(min=0)
   "Condenser heat flow";
   Real[15] COP
   "Heat pump COP";
@@ -188,21 +188,22 @@ equation
 
   Qbuih = Qgb + Qcon;
 
-  Qcon = (-Qext).*(COP-ones(15))./COP;
+  Qext = (-Qcon).*(COP-ones(15))./COP;
 
   COP = 5.15*ones(15) + 0.1*delTBor_LT;
+
   TevaOutLT = 4.46*ones(15) + (6/7)*delTBor_LT;
 
-  curTime = time;
-  //der(curTime) = 0;
+  //curTime = time;
+  der(curTime) = 0;
   for j in 1:16 loop
      futTime[j] = curTime + tStep*intervals[j];
   end for;
 
    for j in 2:16 loop
-      Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((curTime + intervals[j-1]*tStep)/86400 + k,365))*24 for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/3600);
-      Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((curTime + intervals[j-1]*tStep)/86400 + k,365))*24 for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/3600);
-      costLT[j-1] = (gasPrice/1000*Qgb[j-1] + electricityPrice/1000*(Qcon[j-1]/COP[j-1]))*((intervals[j] - intervals[j - 1])*tStep/86400);
+      Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((curTime + intervals[j-1]*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
+      Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((curTime + intervals[j-1]*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
+      costLT[j-1] = (gasPrice/1000*Qgb[j-1] + electricityPrice/1000*(Qcon[j-1]/COP[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
    end for;
 
 //         Qbuih[j-1] =sum(buiNeeds.Qbuih[integer(mod(time + intervals[j - 1]*
