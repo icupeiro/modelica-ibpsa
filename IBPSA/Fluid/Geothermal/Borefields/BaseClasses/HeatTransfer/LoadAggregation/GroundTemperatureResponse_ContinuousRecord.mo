@@ -32,8 +32,8 @@ model GroundTemperatureResponse_ContinuousRecord
   "Array with the long-term predictions of deltaT";
   Real[i, 16-1] kappa_LT(each fixed=false)
     "Weight factor for each aggregation cell for long-term predictions";
-  Modelica.SIunits.Time[16] futTime;
-  Modelica.SIunits.Time curTime;
+//   Modelica.SIunits.Time[16] futTime;
+//   Modelica.SIunits.Time curTime;
   Real wT = IBPSA.Utilities.Math.Functions.spliceFunction(1,0, time-(curTime+6*86400), 86400/4)
   "weighting function to take only the last value of optimization";
   Real[16-1] QBor_LT(unit="W")
@@ -76,6 +76,10 @@ model GroundTemperatureResponse_ContinuousRecord
   "Building cooling needs";
   final parameter Real[365,3] Qbui(each fixed=false);
 
+  Modelica.Blocks.Interfaces.RealInput curTime(unit="s")
+    "Heat flow from all boreholes combined (positive if heat from fluid into soil)"
+    annotation (Placement(transformation(extent={{-120,-50},{-100,-30}}),
+        iconTransformation(extent={{-120,-10},{-100,10}})));
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
@@ -164,7 +168,7 @@ initial equation
   Qbui[:,2] = buiNeeds.Qbuih[:];
   Qbui[:,3] = buiNeeds.Qbuic[:];
 
-  curTime = time;
+//   curTime = time;
 
   for k in 1:16-1 loop
     for j in 1:k loop
@@ -204,10 +208,10 @@ equation
   TevaOutLT = 4.46*ones(15) + (6/7)*delTBor_LT;
 
   //curTime = time;
-  der(curTime) = 0;
-  for j in 1:16 loop
-     futTime[j] = curTime + tStep*intervals[j];
-  end for;
+//   der(curTime) = 0;
+//   for j in 1:16 loop
+//      futTime[j] = curTime + tStep*intervals[j];
+//   end for;
 
    for j in 2:16 loop
       Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
