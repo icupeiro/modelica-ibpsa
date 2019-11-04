@@ -185,6 +185,11 @@ initial equation
       end for;
  end for;
 
+ for j in 1:15 loop
+ 	Qbuih[j] = 0;
+	Qbuic[j] = 0;
+ end for;
+
 equation
   assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
   assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
