@@ -221,7 +221,7 @@ equation
       der(Qbuic[j-1]) = 0;
       //Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
       //Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
-      costLT[j-1] = (gasPrice/1000*Qgb[j-1] + electricityPrice/1000*(Qcon[j-1]/COP[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
+      costLT[j-1] = (gasPrice/1000*Qgb[j-1] + electricityPrice/1000*((Qcon[j-1]/COP[j-1])+190*(Qinj/(5*3826)/1.5927)^3))*((intervals[j] - intervals[j - 1])*tStep/3600);
    end for;
 
 //         Qbuih[j-1] =sum(buiNeeds.Qbuih[integer(mod(time + intervals[j - 1]*
