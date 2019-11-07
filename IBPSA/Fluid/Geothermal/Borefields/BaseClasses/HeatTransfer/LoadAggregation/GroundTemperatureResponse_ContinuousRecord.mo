@@ -166,7 +166,7 @@ initial equation
   Qbui[:,2] = buiNeeds.Qbuih[:];
   Qbui[:,3] = buiNeeds.Qbuic[:];
 
-   curTime = time;
+  // curTime = time;
 
   for k in 1:16-1 loop
     for j in 1:k loop
@@ -211,7 +211,7 @@ equation
   TevaOutLT = 4.46*ones(15) + (6/7)*delTBor_LT;
 
  //  curTime = time;
-     der(curTime) = 0;
+ //    der(curTime) = 0;
 //   for j in 1:16 loop
 //      futTime[j] = curTime + tStep*intervals[j];
 //   end for;

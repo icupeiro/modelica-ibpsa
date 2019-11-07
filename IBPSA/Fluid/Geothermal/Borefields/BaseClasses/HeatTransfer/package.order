@@ -7,3 +7,4 @@ LoadAggregation
 ThermalResponseFactors
 Validation
 interpolate
+interpolateVector
