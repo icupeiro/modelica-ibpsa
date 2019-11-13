@@ -177,12 +177,12 @@ initial equation
     end for;
   end for;
 
- for j in 2:16 loop
-       kappa_LT[1,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j]-1) + nu[1])
-                     - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j]-1));
+ for j in 1:16-1 loop
+       kappa_LT[1,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j+1]-1) + nu[1])
+                     - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j+1]-1));
       for k in 2:i loop
-      kappa_LT[k,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j]-1) + nu[k])
-                    - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j]-1) + nu[k-1]);
+      kappa_LT[k,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j+1]-1) + nu[k])
+                    - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j+1]-1) + nu[k-1]);
       end for;
  end for;
 
@@ -210,7 +210,7 @@ equation
   TevaOutLT = 4.46*ones(15) + (6/7)*delTBor_LT;
 
  //  curTime = time;
-    der(curTime) = 0;
+//    der(curTime) = 0;
 //   for j in 1:16 loop
 //      futTime[j] = curTime + tStep*intervals[j];
 //   end for;
