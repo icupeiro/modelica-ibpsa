@@ -51,8 +51,6 @@ model GroundTemperatureResponse_ContinuousRecord
         iconTransformation(extent={{100,-76},{120,-56}})));
 
 
-  Data.BuildingLoads.BESTEST buiNeeds
-    annotation (Placement(transformation(extent={{0,20},{20,40}})));
   Modelica.SIunits.HeatFlowRate[15] Qinj
   "Heat flow injected into the field";
   Modelica.SIunits.HeatFlowRate[15] Qgb(min=0)
@@ -72,11 +70,12 @@ model GroundTemperatureResponse_ContinuousRecord
   Modelica.Blocks.Interfaces.RealInput Qext[15]
     annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
 
-  Modelica.SIunits.HeatFlowRate[15] Qbuih
-  "Building heating needs";
-  Modelica.SIunits.HeatFlowRate[15] Qbuic
-  "Building cooling needs";
-  final parameter Real[365,3] Qbui(each fixed=false);
+ Modelica.Blocks.Interfaces.RealInput[15] Qbuih(unit="W")
+    annotation (Placement(transformation(extent={{-120,-78},{-100,-58}}),
+        iconTransformation(extent={{-120,-78},{-100,-58}})));
+ Modelica.Blocks.Interfaces.RealInput[15] Qbuic(unit="W")
+    annotation (Placement(transformation(extent={{-120,-100},{-100,-80}}),
+        iconTransformation(extent={{-120,-100},{-100,-80}})));
 
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
@@ -161,9 +160,6 @@ initial equation
   timSerOriginal[:,1] = gFuncOriginal.timExp[:];
   timSerOriginal[:,2] = gFuncOriginal.gFunc[:];
 
-  Qbui[:,1] = buiNeeds.hou[:];
-  Qbui[:,2] = buiNeeds.Qbuih[:];
-  Qbui[:,3] = buiNeeds.Qbuic[:];
 
   // curTime = time;
 
@@ -186,10 +182,10 @@ initial equation
       end for;
  end for;
 
- for j in 1:15 loop
-  Qbuih[j] = 0;
- Qbuic[j] = 0;
- end for;
+//  for j in 1:15 loop
+//   Qbuih[j] = 0;
+//   Qbuic[j] = 0;
+//  end for;
 
 equation
   assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
@@ -210,14 +206,12 @@ equation
   TevaOutLT = 4.46*ones(15) + (6/7)*delTBor_LT;
 
  //  curTime = time;
-    der(curTime) = 0;
+  //  der(curTime) = 0;
 //   for j in 1:16 loop
-//      futTime[j] = curTime + tStep*intervals[j];
+//      futTime[j] = der(QAgg_flow[j]curTime + tStep*intervals[j];
 //   end for;
 
    for j in 2:16 loop
-      der(Qbuih[j-1]) = 0;
-      der(Qbuic[j-1]) = 0;
       //Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
       //Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
       costLT[j-1] = (gasPrice/1000*Qgb[j-1] + electricityPrice/1000*((Qcon[j-1]/COP[j-1])+190*(Qinj[j-1]/(5*3826)/1.5927)^3))*((intervals[j] - intervals[j - 1])*tStep/3600);
