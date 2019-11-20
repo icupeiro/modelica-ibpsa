@@ -7,3 +7,4 @@ temperatureResponseMatrixSoil
 temporalSuperposition
 Validation
 GroundTemperatureResponse_ContinuousRecord
+GroundTemperatureResponse_ContinuousRecordnoLT
