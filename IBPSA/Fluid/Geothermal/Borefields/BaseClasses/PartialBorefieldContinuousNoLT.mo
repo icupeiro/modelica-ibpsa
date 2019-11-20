@@ -126,12 +126,6 @@ partial model PartialBorefieldContinuousNoLT
     start=0)
     "temperature difference between the original g-function and the cyclic one"
     annotation (Placement(transformation(extent={{100,58},{120,78}})));
-  parameter Modelica.SIunits.Time tStep=604800
-    "Time-step of the long-term predictions";
-  parameter Real intervals[:]={1,2,3,4,8,12,16,20,24,28,32,36,40,44,48,52}
-    "Array with the long-term intervals to be evaluated";
-  parameter Real electricityPrice;
-  parameter Real gasPrice;
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";
