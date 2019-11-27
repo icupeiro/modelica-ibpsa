@@ -134,8 +134,7 @@ protected
   Modelica.Blocks.Sources.Constant TSoiUnd[nSeg](
     k = TExt_start,
     y(each unit="K",
-      each displayUnit="degC"))
-    "Undisturbed soil temperature"
+      each displayUnit="degC")) "Undisturbed soil temperature"
     annotation (Placement(transformation(extent={{-40,14},{-20,34}})));
 
   Modelica.Thermal.HeatTransfer.Sensors.HeatFlowSensor QBorHol[nSeg]
