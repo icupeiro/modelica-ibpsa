@@ -1,6 +1,7 @@
 Cylindrical
 GroundTemperatureResponse
 GroundTemperatureResponse_Continuous
+GroundTemperatureResponse_Continuous_portT
 GroundTemperatureResponse_ContinuousCSV
 GroundTemperatureResponse_ContinuousRecord
 LoadAggregation

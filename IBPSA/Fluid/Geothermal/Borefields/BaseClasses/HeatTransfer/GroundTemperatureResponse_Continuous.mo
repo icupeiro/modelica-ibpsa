@@ -100,7 +100,8 @@ initial equation
       forceGFunCalc=forceGFunCalc);
 
 equation
-  delTBor = QAgg_flow[:]*kappa[:];
+  //delTBor = QAgg_flow[:]*kappa[:];
+  der(delTBor) = kappa[:]*der(QAgg_flow[:]);
 
 //    // "Upwind" scheme
 //    der(QAgg_flow[1]) = -1/(rCel[1]*tLoaAgg)*(QAgg_flow[1] - QBor_flow);

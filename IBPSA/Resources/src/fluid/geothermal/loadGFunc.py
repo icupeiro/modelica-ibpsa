@@ -113,7 +113,7 @@ def main():
 
     # Borehole dimensions
     D = 0.0             # Borehole buried depth (m)
-    H = 149.0           # Borehole length (m)
+    H = 120.0           # Borehole length (m)
     r_b = 0.075         # Borehole radius (m)
     B = 6.0             # Borehole spacing (m)
 
