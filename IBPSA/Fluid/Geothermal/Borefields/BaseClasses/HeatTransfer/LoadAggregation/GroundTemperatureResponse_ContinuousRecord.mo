@@ -45,7 +45,7 @@ model GroundTemperatureResponse_ContinuousRecord
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
   parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncStandard
     annotation (Placement(transformation(extent={{-8,-80},{12,-60}})));
-  Modelica.Blocks.Interfaces.RealOutput delTBorOriginal(unit="K")
+  Modelica.Blocks.Interfaces.RealOutput delTBorStandard(unit="K")
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
         iconTransformation(extent={{100,-76},{120,-56}})));
@@ -197,7 +197,7 @@ equation
     "The size of the time series and the g-function does not match",
     AssertionLevel.error);
   delTBor = QAgg_flow[:]*kappa[:];
-  delTBorOriginal = QAgg_flow[:]*kappaOriginal[:];
+  delTBorStandard = QAgg_flow[:]*kappaOriginal[:];
 
   QBor_LT = Qinj + Qext;
 
