@@ -36,14 +36,14 @@ model GroundTemperatureResponse_ContinuousRecord
   Modelica.Blocks.Interfaces.RealInput curTime(unit="s")
     annotation (Placement(transformation(extent={{-120,-50},{-100,-30}}),
         iconTransformation(extent={{-120,-50},{-100,-30}})));
-  Real wT = IBPSA.Utilities.Math.Functions.spliceFunction(1,0, time-(curTime+6*86400), 86400/4)
+  Real wT = if curTime + 6*86400 > time then 0 else 1
   "weighting function to take only the last value of optimization";
   Real[16-1] QBor_LT(unit="W")
   "Long-term prediction of the ground loads";
 
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncMultiY
+  parameter Data.GFunctions.Template gFuncMultiY
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncStandard
+  parameter Data.GFunctions.Template gFuncStandard
     annotation (Placement(transformation(extent={{-8,-80},{12,-60}})));
   Modelica.Blocks.Interfaces.RealOutput delTBorStandard(unit="K")
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
