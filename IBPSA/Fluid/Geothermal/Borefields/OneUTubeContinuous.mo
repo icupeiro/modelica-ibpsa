@@ -2,7 +2,7 @@ within IBPSA.Fluid.Geothermal.Borefields;
 model OneUTubeContinuous
   extends OneUTube(redeclare
       BaseClasses.HeatTransfer.GroundTemperatureResponse_ContinuousRecord
-      groTemRes);
+      groTemRes(gFunc=gFunc, gFuncStandard=gFuncStandard));
   Modelica.Blocks.Interfaces.RealOutput QBor_flow(
     final unit="W",
     displayUnit="W",
@@ -15,6 +15,10 @@ model OneUTubeContinuous
     start=0)
     "temperature difference between the original g-function and the cyclic one"
     annotation (Placement(transformation(extent={{100,58},{120,78}})));
+  parameter Data.GFunctions.Template                                   gFunc
+    annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
+  parameter Data.GFunctions.Template                                   gFuncStandard
+    annotation (Placement(transformation(extent={{-8,-80},{12,-60}})));
 protected
   Modelica.Blocks.Math.Add deltaTgFunc(each final k1=1, each final k2=-1)
     annotation (Placement(transformation(extent={{80,52},{94,66}})));
@@ -25,6 +29,6 @@ equation
           {100.35,68},{110,68}}, color={0,0,127}));
   connect(deltaTgFunc.u1, groTemRes.delTBor) annotation (Line(points={{78.6,
           63.2},{52,63.2},{52,80},{41,80}}, color={0,0,127}));
-  connect(deltaTgFunc.u2, groTemRes.delTBorOriginal) annotation (Line(points={{
+  connect(deltaTgFunc.u2, groTemRes.delTBorStandard) annotation (Line(points={{
           78.6,54.8},{46,54.8},{46,73.4},{41,73.4}}, color={0,0,127}));
 end OneUTubeContinuous;
