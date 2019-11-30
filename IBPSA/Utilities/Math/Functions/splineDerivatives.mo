@@ -46,25 +46,25 @@ algorithm
     d[1] := delta[1];
     d[n] := delta[n - 1];
 
-    for i in 2:n - 1 loop
-      d[i] := (delta[i - 1] + delta[i])/2;
+    for k in 2:n - 1 loop
+      d[k] := (delta[k - 1] + delta[k])/2;
     end for;
 
   end if;
   // Ensure monotonicity
   if n > 2 and ensureMonotonicity then
-    for i in 1:n - 1 loop
-      if (abs(delta[i]) < Modelica.Constants.small) then
-        d[i] := 0;
-        d[i + 1] := 0;
+    for u in 1:n - 1 loop
+      if (abs(delta[u]) < Modelica.Constants.small) then
+        d[u] := 0;
+        d[u + 1] := 0;
       else
-        alpha := d[i]/delta[i];
-        beta := d[i + 1]/delta[i];
+        alpha := d[u]/delta[u];
+        beta := d[u + 1]/delta[u];
         // Constrain derivative to ensure monotonicity in this interval
         if (alpha^2 + beta^2) > 9 then
           tau := 3/(alpha^2 + beta^2)^(1/2);
-          d[i] := delta[i]*alpha*tau;
-          d[i + 1] := delta[i]*beta*tau;
+          d[u] := delta[u]*alpha*tau;
+          d[u + 1] := delta[u]*beta*tau;
         end if;
       end if;
     end for;

@@ -3,5 +3,8 @@ aggregationWeightingFactors
 countAggregationCells
 shiftAggregationCells
 temperatureResponseMatrix
+temperatureResponseMatrixSoil
 temporalSuperposition
 Validation
+GroundTemperatureResponse_ContinuousRecord
+GroundTemperatureResponse_ContinuousRecordnoLT

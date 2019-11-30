@@ -1,8 +1,8 @@
 simulateModel("IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.Validation.FiniteDifference_1Week", startTime=0, method="dassl", tolerance=1e-6, stopTime=604800, resultFile="FiniteDifference_1Week");
 removePlots();
-createPlot(id=1, position={0, 0, 1377, 734}, y={"TSoiAna[5].y", "TSoiAna[2].y", "TSoiAna[3].y", "TSoiAna[4].y",
+createPlot(id=1, position={0, 0, 1377, 734}, y={"TSoiAna[1].y", "TSoiAna[2].y", "TSoiAna[3].y", "TSoiAna[4].y",
  "soi.T[1]", "soi.T[2]", "soi.T[3]", "soi.T[4]"}, range={0.0, 190000.0, -10.0, 35.0}, grid=true, colors={{28,108,200}, {238,46,47}, {0,140,72}, {217,67,180}, {0,0,0}, {162,29,33}, 
 {244,125,35}, {102,44,145}},filename="FiniteDifference_1Week.mat");
-createPlot(id=1, position={0, 0, 1377, 363}, y={"TSoiAna[5].y", "TSoiAna[21].y", "TSoiAna[41].y", 
-"TSoiAna[31].y", "soi.T[4]", "soi.T[20]", "soi.T[40]", "soi.T[30]"}, range={0.0, 190000.0, -10.0, 30.0}, grid=true, subPlot=2, colors={{28,108,200}, {238,46,47}, {0,140,72}, {217,67,180}, {0,0,0}, {162,29,33}, 
+createPlot(id=1, position={0, 0, 1377, 363}, y={"TSoiAna[4].y", "TSoiAna[20].y", "TSoiAna[40].y", 
+"TSoiAna[30].y", "soi.T[4]", "soi.T[20]", "soi.T[40]", "soi.T[30]"}, range={0.0, 190000.0, -10.0, 30.0}, grid=true, subPlot=2, colors={{28,108,200}, {238,46,47}, {0,140,72}, {217,67,180}, {0,0,0}, {162,29,33}, 
 {244,125,35}, {102,44,145}},filename="FiniteDifference_1Week.mat");

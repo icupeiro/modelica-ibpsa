@@ -8,13 +8,14 @@ model FiniteDifference_1Week
   IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.Cylindrical soi(
     final steadyStateInitial=false,
     final soiDat=borFieDat.soiDat,
-    final h=borFieDat.conDat.hBor,
     final r_a=borFieDat.conDat.rBor,
-    final r_b=3,
     final TInt_start=T_start,
     final TExt_start=T_start,
     gridFac=1.2,
-    final nSta=50) "Heat conduction in the soil"
+    final nSta=50,
+    final r_b=15,
+    final h=borFieDat.conDat.hBor)
+                   "Heat conduction in the soil"
     annotation (Placement(transformation(extent={{-12,50},{8,70}})));
   Modelica.Thermal.HeatTransfer.Sources.PrescribedHeatFlow preHeaFlo
     "Prescribed heat flow to soil for the discretized model"
@@ -32,29 +33,33 @@ model FiniteDifference_1Week
       steadyState=true),
     conDat(
       borCon=Types.BoreholeConfiguration.SingleUTube,
-      nBor=1,
-      cooBor={{0,0}},
       mBor_flow_nominal=0.3,
       dp_nominal=5e4,
-      hBor=1e6,
       rBor=0.05,
       dBor=4,
       rTub=0.02,
       kTub=0.5,
       eTub=0.002,
-      xC=0.05))
-      "Borefield parameters"
+      xC=0.05,
+      nBor=4,
+      cooBor=[0,0; 0,6; 6,0; 6,6],
+      hBor=100))
+                "Borefield parameters"
     annotation (Placement(transformation(extent={{-90,-88},{-70,-68}})));
 
-  Modelica.Blocks.Sources.Sine sine(
-    freqHz=1/(24*3600),
-    startTime=21600,
-    amplitude=1e8) "Heat flow signal"
+  Modelica.Blocks.Sources.Constant
+                               const(k=2*borFieDat.soiDat.kSoi*Modelica.Constants.pi
+        *borFieDat.conDat.hBor*4)
+                   "Heat flow signal"
     annotation (Placement(transformation(extent={{-92,-10},{-72,10}})));
-  IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.GroundTemperatureResponse groTemRes(
+  IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.GroundTemperatureResponse
+    groTemRes(
     borFieDat=borFieDat,
     nCel=5,
-    tLoaAgg=30) "Heat conduction in the soil"
+    r=soi.rC,
+    tLoaAgg=300,
+    forceGFunCalc=true)
+              "Heat conduction in the soil"
     annotation (Placement(transformation(extent={{-50,-10},{-30,10}})));
   Modelica.Blocks.Sources.Constant groTem(k=T_start)
     "Ground temperature signal"
@@ -73,17 +78,16 @@ model FiniteDifference_1Week
         extent={{-10,-10},{10,10}},
         rotation=0,
         origin={0,20})));
-  Modelica.Blocks.Math.Add TSoiAna(y(unit="K"))
+  Modelica.Blocks.Math.Add[51] TSoiAna(y(unit="K"))
     "Ground temperature from ground response model"
     annotation (Placement(transformation(extent={{-12,-40},{8,-20}})));
+  Modelica.Blocks.Routing.Replicator                reaRep(nout=51)
+    annotation (Placement(transformation(extent={{-48,-46},{-28,-26}})));
 equation
   connect(preHeaFlo.port, soi.port_a) annotation (Line(
       points={{-30,60},{-12,60}},
       color={191,0,0},
       smooth=Smooth.None));
-  connect(sine.y, preHeaFlo.Q_flow) annotation (Line(points={{-71,0},{-60,0},{
-          -60,60},{-50,60}},
-                         color={0,0,127}));
   connect(preTem.port, soi.port_b)
     annotation (Line(points={{28,60},{18,60},{8,60}}, color={191,0,0}));
   connect(preTem.T, groTem.y)
@@ -94,18 +98,22 @@ equation
   connect(soi.port_a, temSenDis.port) annotation (Line(points={{-12,60},{-20,60},
           {-20,20},{-10,20}}, color={191,0,0}));
 
+  connect(groTemRes.QBor_flow, const.y)
+    annotation (Line(points={{-51,0},{-71,0}}, color={0,0,127}));
   connect(groTemRes.delTBor, TSoiAna.u1) annotation (Line(points={{-29,0},{-20,
           0},{-20,-24},{-14,-24}}, color={0,0,127}));
-  connect(groTem.y, TSoiAna.u2)
-    annotation (Line(points={{-73,-36},{-14,-36}}, color={0,0,127}));
-  connect(deltaT.u2, TSoiAna.y) annotation (Line(points={{28,-6},{18,-6},{18,
-          -30},{9,-30}}, color={0,0,127}));
-  connect(groTemRes.QBor_flow, sine.y)
-    annotation (Line(points={{-51,0},{-71,0}}, color={0,0,127}));
+  connect(groTem.y, reaRep.u)
+    annotation (Line(points={{-73,-36},{-50,-36}}, color={0,0,127}));
+  connect(reaRep.y, TSoiAna.u2)
+    annotation (Line(points={{-27,-36},{-14,-36}}, color={0,0,127}));
+  connect(TSoiAna[1].y, deltaT.u2) annotation (Line(points={{9,-30},{20,-30},{
+          20,-6},{28,-6}}, color={0,0,127}));
+  connect(const.y, preHeaFlo.Q_flow) annotation (Line(points={{-71,0},{-60,0},{
+          -60,60},{-50,60}}, color={0,0,127}));
   annotation (
     __Dymola_Commands(file=
           "modelica://IBPSA/Resources/Scripts/Dymola/Fluid/Geothermal/Borefields/BaseClasses/HeatTransfer/Validation/FiniteDifference_1Week.mos"
-        "Simulate and plot"),
+        "Simulate and plot", file="Resources/Scripts/Dymola/Fluid/Geothermal/Borefields/BaseClasses/HeatTransfer/LoadAggregation/Validation/FiniteDifference_1Week.mos"),
     experiment(Tolerance=1e-6, StopTime=604800.0),
     Documentation(info="<html>
 <p>

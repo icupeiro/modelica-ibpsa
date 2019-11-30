@@ -43,11 +43,11 @@ algorithm
     // Dittus-Boelter correlation: h = 0.023*k_f*Re*Pr/(2*rTub)
     // Re = rho*v*DTub / mue_f
     //    = m_flow/(pi r^2) * DTub/mue_f = 2*m_flow / ( mue*pi*rTub)
-    Nu := 0.023*(cpMed*muMed/kMed)^(0.35)*
-      IBPSA.Utilities.Math.Functions.regNonZeroPower(
-        x=Re,
-        n=0.8,
-        delta=0.01*m_flow_nominal*k);
+    Nu := 0.023*(cpMed*muMed/kMed)^(0.35)*Re^(0.8);
+//       IBPSA.Utilities.Math.Functions.regNonZeroPower(
+//         x=Re,
+//         n=0.8,
+//         delta=0.01*m_flow_nominal*k);
   else
     // Laminar, fully-developped flow in a smooth circular pipe with uniform
     // imposed temperature: Nu=3.66 for Re<=2300. For 2300<Re<2400, a smooth
