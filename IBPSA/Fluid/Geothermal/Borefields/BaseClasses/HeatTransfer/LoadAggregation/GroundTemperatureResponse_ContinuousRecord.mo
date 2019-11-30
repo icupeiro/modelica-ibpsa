@@ -41,9 +41,9 @@ model GroundTemperatureResponse_ContinuousRecord
   Real[16-1] QBor_LT(unit="W")
   "Long-term prediction of the ground loads";
 
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFunc
+  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncMultiY
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncOriginal
+  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncStandard
     annotation (Placement(transformation(extent={{-8,-80},{12,-60}})));
   Modelica.Blocks.Interfaces.RealOutput delTBorOriginal(unit="K")
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
@@ -154,11 +154,11 @@ initial equation
     TStep=timSerOriginal,
     nu=nu);
 
-  timSer[:,1] = gFunc.timExp[:];
-  timSer[:,2] = gFunc.gFunc[:];
+  timSer[:,1] =gFuncMultiY.timExp[:];
+  timSer[:,2] =gFuncMultiY.gFunc[:];
 
-  timSerOriginal[:,1] = gFuncOriginal.timExp[:];
-  timSerOriginal[:,2] = gFuncOriginal.gFunc[:];
+  timSerOriginal[:,1] =gFuncStandard.timExp[:];
+  timSerOriginal[:,2] =gFuncStandard.gFunc[:];
 
 
   // curTime = time;
@@ -188,8 +188,14 @@ initial equation
 //  end for;
 
 equation
-  assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
-  assert(size(gFunc.timExp,1) == 76, "The size of the time series and the g-function does not match", AssertionLevel.error);
+  assert(
+    size(gFuncMultiY.timExp, 1) == 76,
+    "The size of the time series and the g-function does not match",
+    AssertionLevel.error);
+  assert(
+    size(gFuncMultiY.timExp, 1) == 76,
+    "The size of the time series and the g-function does not match",
+    AssertionLevel.error);
   delTBor = QAgg_flow[:]*kappa[:];
   delTBorOriginal = QAgg_flow[:]*kappaOriginal[:];
 

@@ -1,5 +1,5 @@
-within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation;
-model GroundTemperatureResponse_ContinuousRecordnoLT
+within IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer;
+model GroundTemperatureResponse_Continuous_portT
   "Model calculating discrete load aggregation"
   parameter Modelica.SIunits.Time tLoaAgg(final min = Modelica.Constants.eps)=3600
     "Time resolution of load aggregation";
@@ -24,17 +24,32 @@ model GroundTemperatureResponse_ContinuousRecordnoLT
    Modelica.SIunits.HeatFlowRate[i] QFace
      "Vector of cell face values of aggregated loads";
 
+  Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a Tb[nDis]
+    annotation (Placement(transformation(extent={{90,-50},{110,-30}})));
+  parameter Integer nDis(min=1)=10
+    "Number of segments to use in vertical discretization of the boreholes";
+  parameter Modelica.SIunits.Temperature TExt0_start=283.15
+    "Initial far field temperature"
+    annotation (Dialog(tab="Initialization", group="Soil"));
 
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncMultiY
-    annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncStandard
-    annotation (Placement(transformation(extent={{-8,-80},{12,-60}})));
-  Modelica.Blocks.Interfaces.RealOutput delTBorStandard(unit="K")
-    "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
-    annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
-        iconTransformation(extent={{100,-76},{120,-56}})));
+  parameter Modelica.SIunits.Height z0=10
+    "Depth below which the temperature gradient starts"
+    annotation (Dialog(tab="Initialization", group="Temperature profile"));
+  parameter Real dT_dz(final unit="K/m", min=0) = 0.01
+    "Vertical temperature gradient of the undisturbed soil for h below z0"
+    annotation (Dialog(tab="Initialization", group="Temperature profile"));
+  parameter Modelica.SIunits.Temperature TExt_start[nDis]=
+    {if z[i] >= z0 then TExt0_start + (z[i] - z0)*dT_dz else TExt0_start for i in 1:nDis}
+    "Temperature of the undisturbed ground"
+    annotation (Dialog(tab="Initialization", group="Soil"));
+  parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nDis*(i - 0.5) for i in 1:nDis}
+    "Distance from the surface to the considered segment";
+  parameter Integer nBor;
 
-
+  Modelica.Thermal.HeatTransfer.Components.HeatCapacitor Tug[nDis](C=Modelica.Constants.inf,
+      T(fixed=true, start=TExt_start))
+    annotation (Placement(transformation(extent={{-10,-6},{10,14}})));
+protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
     "Number of segments per borehole for g-function calculation";
@@ -67,21 +82,19 @@ model GroundTemperatureResponse_ContinuousRecordnoLT
       timFin=timFin,
       tLoaAgg=tLoaAgg)
       "Number of aggregation cells";
-  final parameter Real[76,2] timSer(each fixed=false)
-    "g-function input from matrix, with the second column as temperature Tstep";
-  final parameter Real[76,2] timSerOriginal(each fixed=false)
+  final parameter Real[nTimTot,2] timSer(each fixed=false)
     "g-function input from matrix, with the second column as temperature Tstep";
   final parameter Modelica.SIunits.Time[i] nu(each fixed=false)
     "Time vector for load aggregation";
   final parameter Real[i] kappa(each fixed=false)
-    "Weight factor for each aggregation cell";
-  final parameter Real[i] kappaOriginal(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
 
 initial equation
   QAgg_flow = zeros(i);
   delTBor = 0;
+  Tb.T = TExt_start;
+
 
   (nu,rCel) = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationCellTimes(
     i=i,
@@ -96,31 +109,27 @@ initial equation
     TStep=timSer,
     nu=nu);
 
-  kappaOriginal = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
-    i=i,
-    nTimTot=nTimTot,
-    TStep=timSerOriginal,
-    nu=nu);
-
-  timSer[:,1] =gFuncMultiY.timExp[:];
-  timSer[:,2] =gFuncMultiY.gFunc[:];
-
-  timSerOriginal[:,1] =gFuncStandard.timExp[:];
-  timSerOriginal[:,2] =gFuncStandard.gFunc[:];
-
+  timSer =
+    IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.temperatureResponseMatrix(
+      nBor=borFieDat.conDat.nBor,
+      cooBor=borFieDat.conDat.cooBor,
+      hBor=borFieDat.conDat.hBor,
+      dBor=borFieDat.conDat.dBor,
+      rBor=borFieDat.conDat.rBor,
+      aSoi=borFieDat.soiDat.aSoi,
+      kSoi=borFieDat.soiDat.kSoi,
+      nSeg=nSeg,
+      nTimSho=nTimSho,
+      nTimLon=nTimLon,
+      nTimTot=nTimTot,
+      ttsMax=ttsMax,
+      sha=SHAgfun,
+      forceGFunCalc=forceGFunCalc);
 
 equation
-  assert(
-    size(gFuncMultiY.timExp, 1) == 76,
-    "The size of the time series and the g-function does not match",
-    AssertionLevel.error);
-  assert(
-    size(gFuncMultiY.timExp, 1) == 76,
-    "The size of the time series and the g-function does not match",
-    AssertionLevel.error);
+  //Tb.T =Tug.T + delTBor*ones(nDis);
+  der(Tb.T) = kappa[:]*der(QAgg_flow)*ones(nDis);
   delTBor = QAgg_flow[:]*kappa[:];
-  delTBorStandard = QAgg_flow[:]*kappaOriginal[:];
-
 
 //    // "Upwind" scheme
 //    der(QAgg_flow[1]) = -1/(rCel[1]*tLoaAgg)*(QAgg_flow[1] - QBor_flow);
@@ -130,8 +139,9 @@ equation
 //    der(QAgg_flow[i]) = 1/(rCel[i]*tLoaAgg)*(QAgg_flow[i-1]);
 
    // "QUICK" scheme
-   QFace[1] = QBor_flow;
-   QFace[2] = 0.5*(QAgg_flow[1] + QAgg_flow[2]) - 0.125*(0.5*rCel[1] + 0.5*rCel[2])^2/rCel[1]*((QAgg_flow[2] - QAgg_flow[1])/(0.5*rCel[1] + 0.5*rCel[2]) - (QAgg_flow[1] - QBor_flow)/(0.5*rCel[1]));
+   QFace[1] = nBor*sum(Tb.Q_flow);
+   //QFace[1] = QBor_flow;
+   QFace[2] = 0.5*(QAgg_flow[1] + QAgg_flow[2]) - 0.125*(0.5*rCel[1] + 0.5*rCel[2])^2/rCel[1]*((QAgg_flow[2] - QAgg_flow[1])/(0.5*rCel[1] + 0.5*rCel[2]) - (QAgg_flow[1] - QFace[1])/(0.5*rCel[1]));
    for j in 3:i loop
      QFace[j] = 0.5*(QAgg_flow[j-1] + QAgg_flow[j]) - 0.125*(0.5*rCel[j-1] + 0.5*rCel[j])^2/rCel[j-1]*((QAgg_flow[j] - QAgg_flow[j-1])/(0.5*rCel[j-1] + 0.5*rCel[j]) - (QAgg_flow[j-1] - QAgg_flow[j-2])/(0.5*rCel[j-1] + 0.5*rCel[j-2]));
    end for;
@@ -332,10 +342,5 @@ April 5, 2018, by Alex Laferri&egrave;re:<br/>
 First implementation.
 </li>
 </ul>
-</html>"),
-    experiment(
-      StopTime=315360000,
-      Interval=300,
-      Tolerance=1e-06,
-      __Dymola_Algorithm="Euler"));
-end GroundTemperatureResponse_ContinuousRecordnoLT;
+</html>"));
+end GroundTemperatureResponse_Continuous_portT;

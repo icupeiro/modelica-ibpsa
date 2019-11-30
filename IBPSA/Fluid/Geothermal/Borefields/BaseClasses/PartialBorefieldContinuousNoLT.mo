@@ -80,14 +80,14 @@ partial model PartialBorefieldContinuousNoLT
     "Average borehole wall temperature in the borefield"
     annotation (Placement(transformation(extent={{100,34},{120,54}})));
 
-  HeatTransfer.LoadAggregation.GroundTemperatureResponse_ContinuousRecordnoLT          groTemRes(
+  HeatTransfer.LoadAggregation.GroundTemperatureResponse_ContinuousRecordnoLT
+    groTemRes(
     final tLoaAgg=tLoaAgg,
     final nCel=nCel,
     final borFieDat=borFieDat,
     final forceGFunCalc=forceGFunCalc,
-    gFunc=gFunc,
-    gFuncOriginal=gFunc)
-    "Ground temperature response"
+    gFunc=gFuncMultiY,
+    gFuncOriginal=gFuncStandard) "Ground temperature response"
     annotation (Placement(transformation(extent={{20,70},{40,90}})));
 
   replaceable IBPSA.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.PartialBorehole borHol constrainedby
@@ -112,7 +112,7 @@ partial model PartialBorefieldContinuousNoLT
     final TGro_start=TGro_start) "Borehole"
     annotation (Placement(transformation(extent={{-10,-50},{10,-30}})));
 
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6                    gFunc
+  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncMultiY
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
   Modelica.Blocks.Interfaces.RealOutput QBor_flow(
     final unit="W",
@@ -126,6 +126,8 @@ partial model PartialBorefieldContinuousNoLT
     start=0)
     "temperature difference between the original g-function and the cyclic one"
     annotation (Placement(transformation(extent={{100,58},{120,78}})));
+  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncStandard
+    annotation (Placement(transformation(extent={{0,-80},{20,-60}})));
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";

@@ -1,5 +1,5 @@
 within IBPSA.Fluid.Geothermal.Borefields.BaseClasses;
-partial model PartialBorefieldContinuous
+partial model PartialBorefieldLin
   "Borefield model using single U-tube borehole heat exchanger configuration.Calculates the average fluid temperature T_fts of the borefield for a given (time dependent) load Q_flow"
 
   extends IBPSA.Fluid.Interfaces.PartialTwoPortInterface(
@@ -73,25 +73,16 @@ partial model PartialBorefieldContinuous
     "Set to false to remove the dynamics of the filling material."
     annotation (Dialog(tab="Dynamics"));
 
-  Modelica.Blocks.Interfaces.RealOutput TBorAve(final quantity="ThermodynamicTemperature",
-                                                final unit="K",
-                                                displayUnit = "degC",
-                                                start=TExt0_start)
-    "Average borehole wall temperature in the borefield"
-    annotation (Placement(transformation(extent={{100,34},{120,54}})));
-
-  HeatTransfer.LoadAggregation.GroundTemperatureResponse_ContinuousRecord
-    groTemRes(
+  replaceable HeatTransfer.GroundTemperatureResponse_Continuous_portT                              groTemRes(
     final tLoaAgg=tLoaAgg,
     final nCel=nCel,
     final borFieDat=borFieDat,
     final forceGFunCalc=forceGFunCalc,
-    tStep=tStep,
-    intervals=intervals,
-    gFunc=gFuncMultiY,
-    gFuncOriginal=gFuncStandard,
-    electricityPrice=electricityPrice,
-    gasPrice=gasPrice) "Ground temperature response"
+    nDis=10,
+    TExt0_start=TExt0_start,
+    dT_dz=0,
+    nBor=borFieDat.conDat.nBor)
+    "Ground temperature response"
     annotation (Placement(transformation(extent={{20,70},{40,90}})));
 
   replaceable IBPSA.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.PartialBorehole borHol constrainedby
@@ -116,30 +107,6 @@ partial model PartialBorefieldContinuous
     final TGro_start=TGro_start) "Borehole"
     annotation (Placement(transformation(extent={{-10,-50},{10,-30}})));
 
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncMultiY
-    annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
-  Modelica.Blocks.Interfaces.RealOutput QBor_flow(
-    final unit="W",
-    displayUnit="W",
-    start=0) "Heat flow of ground"
-    annotation (Placement(transformation(extent={{100,80},{120,100}})));
-  Modelica.Blocks.Interfaces.RealOutput deltaT(
-    final quantity="ThermodynamicTemperature",
-    final unit="K",
-    displayUnit="degC",
-    start=0)
-    "temperature difference between the original g-function and the cyclic one"
-    annotation (Placement(transformation(extent={{100,58},{120,78}})));
-  Modelica.Blocks.Interfaces.RealInput QBor_LT[size(intervals, 1) - 1]
-    annotation (Placement(transformation(extent={{-120,34},{-80,74}})));
-  parameter Modelica.SIunits.Time tStep=604800
-    "Time-step of the long-term predictions";
-  parameter Real intervals[:]={1,2,3,4,8,12,16,20,24,28,32,36,40,44,48,52}
-    "Array with the long-term intervals to be evaluated";
-  parameter Real electricityPrice;
-  parameter Real gasPrice;
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncStandard
-    annotation (Placement(transformation(extent={{0,-80},{20,-60}})));
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";
@@ -157,15 +124,9 @@ protected
   Modelica.Blocks.Math.Gain gaiQ_flow(k=borFieDat.conDat.nBor)
     "Gain to multiply the heat extracted by one borehole by the number of boreholes"
     annotation (Placement(transformation(extent={{-20,70},{0,90}})));
-  IBPSA.Utilities.Math.Average AveTBor(nin=nSeg)
-    "Average temperature of all the borehole segments"
-    annotation (Placement(transformation(extent={{50,34},{70,54}})));
 
-  Modelica.Blocks.Sources.Constant TSoiUnd[nSeg](
-    k = TExt_start,
-    y(each unit="K",
-      each displayUnit="degC"))
-    "Undisturbed soil temperature"
+  Modelica.Blocks.Sources.Constant TSoiUnd(k=TExt0_start, y(each unit="K",
+        each displayUnit="degC")) "Undisturbed soil temperature"
     annotation (Placement(transformation(extent={{-40,14},{-20,34}})));
 
   Modelica.Thermal.HeatTransfer.Sensors.HeatFlowSensor QBorHol[nSeg]
@@ -174,11 +135,7 @@ protected
         rotation=90,
         origin={0,-10})));
 
-  Modelica.Thermal.HeatTransfer.Sources.PrescribedTemperature TemBorWal[nSeg]
-    "Borewall temperature"
-    annotation (Placement(transformation(extent={{50,6},{70,26}})));
-
-  Modelica.Blocks.Math.Add TSoiDis[nSeg](each final k1=1, each final k2=1)
+  Modelica.Blocks.Math.Add TSoiDis(each final k1=1, each final k2=1)
     "Addition of undisturbed soil temperature and change of soil temperature"
     annotation (Placement(transformation(extent={{10,20},{30,40}})));
 
@@ -190,10 +147,8 @@ protected
 
   Modelica.Blocks.Routing.Replicator repDelTBor(final nout=nSeg)
     "Signal replicator for temperature difference of the borehole"
-    annotation (Placement(transformation(extent={{60,70},{80,90}})));
+    annotation (Placement(transformation(extent={{38,20},{58,40}})));
 
-  Modelica.Blocks.Math.Add deltaTgFunc(each final k1=1, each final k2=-1)
-    annotation (Placement(transformation(extent={{80,52},{94,66}})));
 equation
   connect(masFloMul.port_b, port_b)
     annotation (Line(points={{80,-40},{90,-40},{90,0},{100,0}},
@@ -211,36 +166,18 @@ equation
   connect(QBorHol.Q_flow, QTotSeg_flow.u)
     annotation (Line(points={{-10,-10},{-86,-10},{-86,80},{-62,80}},
                                                           color={0,0,127}));
-  connect(groTemRes.delTBor, repDelTBor.u)
-    annotation (Line(points={{41,80},{58,80}}, color={0,0,127}));
-  connect(TSoiDis.u1, repDelTBor.y) annotation (Line(points={{8,36},{0,36},{0,
-          60},{90,60},{90,80},{81,80}},
-                        color={0,0,127}));
   connect(TSoiDis.u2, TSoiUnd.y) annotation (Line(points={{8,24},{-19,24}},
                          color={0,0,127}));
   connect(QTotSeg_flow.y, gaiQ_flow.u)
     annotation (Line(points={{-39,80},{-22,80}}, color={0,0,127}));
   connect(gaiQ_flow.y, groTemRes.QBor_flow)
     annotation (Line(points={{1,80},{19,80}}, color={0,0,127}));
-  connect(TSoiDis.y, TemBorWal.T)
-    annotation (Line(points={{31,30},{36,30},{36,16},{48,16}},
-                                               color={0,0,127}));
-  connect(QBorHol.port_b, TemBorWal.port) annotation (Line(points={{4.44089e-16,
-          0},{0,0},{0,4},{80,4},{80,16},{70,16}},   color={191,0,0}));
-  connect(TSoiDis.y, AveTBor.u) annotation (Line(points={{31,30},{36,30},{36,44},
-          {48,44}}, color={0,0,127}));
-  connect(AveTBor.y, TBorAve)
-    annotation (Line(points={{71,44},{110,44}}, color={0,0,127}));
-  connect(deltaTgFunc.y, deltaT) annotation (Line(points={{94.7,59},{94.7,66},{
-          94,66},{94,68},{110,68}}, color={0,0,127}));
-  connect(deltaTgFunc.u1, groTemRes.delTBor) annotation (Line(points={{78.6,
-          63.2},{48,63.2},{48,80},{41,80}}, color={0,0,127}));
-  connect(groTemRes.delTBorOriginal, deltaTgFunc.u2) annotation (Line(points={{
-          41,73.4},{41,54.8},{78.6,54.8}}, color={0,0,127}));
-  connect(groTemRes.QBor_flow, QBor_flow) annotation (Line(points={{19,80},{14,
-          80},{14,98},{90,98},{90,90},{110,90}}, color={0,0,127}));
-  connect(QBor_LT, groTemRes.Qext) annotation (Line(points={{-100,54},{-40,54},
-          {-40,87},{19,87}}, color={0,0,127}));
+  connect(groTemRes.delTBor, TSoiDis.u1) annotation (Line(points={{41,80},{60,
+          80},{60,56},{-10,56},{-10,36},{8,36}}, color={0,0,127}));
+  connect(repDelTBor.u, TSoiDis.y) annotation (Line(points={{36,30},{34,30},{34,
+          30},{31,30}}, color={0,0,127}));
+  connect(groTemRes.Tb, QBorHol.port_b) annotation (Line(points={{40,76},{68,76},
+          {68,6},{4.44089e-16,6},{4.44089e-16,0}}, color={191,0,0}));
   annotation (
     Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
         graphics={
@@ -365,4 +302,4 @@ First implementation.
 </li>
 </ul>
 </html>"));
-end PartialBorefieldContinuous;
+end PartialBorefieldLin;
