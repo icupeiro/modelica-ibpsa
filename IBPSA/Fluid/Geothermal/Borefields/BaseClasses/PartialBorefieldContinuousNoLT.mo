@@ -86,8 +86,8 @@ partial model PartialBorefieldContinuousNoLT
     final nCel=nCel,
     final borFieDat=borFieDat,
     final forceGFunCalc=forceGFunCalc,
-    gFunc=gFuncMultiY,
-    gFuncOriginal=gFuncStandard) "Ground temperature response"
+    gFuncMultiY=gFuncMultiY,
+    gFuncStandard=gFuncStandard) "Ground temperature response"
     annotation (Placement(transformation(extent={{20,70},{40,90}})));
 
   replaceable IBPSA.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.PartialBorehole borHol constrainedby
@@ -112,7 +112,7 @@ partial model PartialBorefieldContinuousNoLT
     final TGro_start=TGro_start) "Borehole"
     annotation (Placement(transformation(extent={{-10,-50},{10,-30}})));
 
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncMultiY
+  parameter Data.GFunctions.Template gFuncMultiY
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
   Modelica.Blocks.Interfaces.RealOutput QBor_flow(
     final unit="W",
@@ -124,9 +124,9 @@ partial model PartialBorefieldContinuousNoLT
     final unit="K",
     displayUnit="degC",
     start=0)
-    "temperature difference between the original g-function and the cyclic one"
+    "temperature difference between the  g-function and the cyclic one"
     annotation (Placement(transformation(extent={{100,58},{120,78}})));
-  parameter Data.GFunctions.SquareConfig_9bor_3x3_B6 gFuncStandard
+  parameter Data.GFunctions.Template gFuncStandard
     annotation (Placement(transformation(extent={{0,-80},{20,-60}})));
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
@@ -223,7 +223,7 @@ equation
           94,66},{94,68},{110,68}}, color={0,0,127}));
   connect(deltaTgFunc.u1, groTemRes.delTBor) annotation (Line(points={{78.6,
           63.2},{48,63.2},{48,80},{41,80}}, color={0,0,127}));
-  connect(groTemRes.delTBorOriginal, deltaTgFunc.u2) annotation (Line(points={{
+  connect(groTemRes.delTBorStandard, deltaTgFunc.u2) annotation (Line(points={{
           41,73.4},{41,54.8},{78.6,54.8}}, color={0,0,127}));
   connect(groTemRes.QBor_flow, QBor_flow) annotation (Line(points={{19,80},{14,
           80},{14,98},{90,98},{90,90},{110,90}}, color={0,0,127}));

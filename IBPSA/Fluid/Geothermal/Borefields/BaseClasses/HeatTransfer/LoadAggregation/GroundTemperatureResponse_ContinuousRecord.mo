@@ -111,7 +111,7 @@ model GroundTemperatureResponse_ContinuousRecord
       "Number of aggregation cells";
   final parameter Real[76,2] timSer(each fixed=false)
     "g-function input from matrix, with the second column as temperature Tstep";
-  final parameter Real[76,2] timSerOriginal(each fixed=false)
+  final parameter Real[76,2] timSerStandard(each fixed=false)
     "g-function input from matrix, with the second column as temperature Tstep";
   final parameter Modelica.SIunits.Time[i] nu(each fixed=false)
     "Time vector for load aggregation";
@@ -119,7 +119,7 @@ model GroundTemperatureResponse_ContinuousRecord
     "Time vector for load aggregation for long-term predictions, i.e. start point is increased";
   final parameter Real[i] kappa(each fixed=false)
     "Weight factor for each aggregation cell";
-  final parameter Real[i] kappaOriginal(each fixed=false)
+  final parameter Real[i] kappaStandard(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
 
@@ -148,17 +148,17 @@ initial equation
     nu=nu);
 
 
-  kappaOriginal = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
+  kappaStandard = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
     i=i,
     nTimTot=nTimTot,
-    TStep=timSerOriginal,
+    TStep=timSerStandard,
     nu=nu);
 
   timSer[:,1] =gFuncMultiY.timExp[:];
   timSer[:,2] =gFuncMultiY.gFunc[:];
 
-  timSerOriginal[:,1] =gFuncStandard.timExp[:];
-  timSerOriginal[:,2] =gFuncStandard.gFunc[:];
+  timSerStandard[:,1] =gFuncStandard.timExp[:];
+  timSerStandard[:,2] =gFuncStandard.gFunc[:];
 
 
   // curTime = time;
@@ -197,7 +197,7 @@ equation
     "The size of the time series and the g-function does not match",
     AssertionLevel.error);
   delTBor = QAgg_flow[:]*kappa[:];
-  delTBorStandard = QAgg_flow[:]*kappaOriginal[:];
+  delTBorStandard = QAgg_flow[:]*kappaStandard[:];
 
   QBor_LT = Qinj + Qext;
 
