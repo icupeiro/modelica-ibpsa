@@ -40,7 +40,7 @@ def writeRecord(tSer,gFunc):
 
     with open(path, 'w') as f:
         f.write('within IBPSA.Fluid.Geothermal.Borefields.Data.GFunctions;\n')
-        f.write('record ' + name )
+        f.write('record ' + name +'\n')
         f.write('extends IBPSA.Fluid.Geothermal.Borefields.Data.GFunctions.Template('
             + '\n')
         f.write('    timExp={\n')
@@ -113,7 +113,7 @@ def main():
 
     # Borehole dimensions
     D = 0.0             # Borehole buried depth (m)
-    H = 120.0           # Borehole length (m)
+    H = 69.0           # Borehole length (m)
     r_b = 0.075         # Borehole radius (m)
     B = 6.0             # Borehole spacing (m)
 
@@ -164,7 +164,7 @@ def main():
     gFuncCyclic = cyclicGFunc(time, gFunc, time2, gFunc2, ydes)
     gFuncAverage = averageGFunc(time, gFunc, time2, gFunc2, ydes)
 
-    writeRecord(time,gFunc)
+    writeRecord(time,gFuncCyclic)
 
     # -------------------------------------------------------------------------
     # Figure
