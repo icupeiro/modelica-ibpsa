@@ -113,12 +113,12 @@ def main():
 
     # Borehole dimensions
     D = 0.0             # Borehole buried depth (m)
-    H = 69.0           # Borehole length (m)
+    H = 48           # Borehole length (m)
     r_b = 0.075         # Borehole radius (m)
-    B = 6.0             # Borehole spacing (m)
+    B = 5.0             # Borehole spacing (m)
 
     # Soil thermal properties
-    kSoi = 2.5				# Ground thermal conductivity (W/(mK))
+    kSoi = 1.25				# Ground thermal conductivity (W/(mK))
     cSoi = 1200				# Specific heat capacity of the soil (J/(kgK))
     dSoi = 1800				# Density of the soil (kg/m3)
     aSoi = kSoi/cSoi/dSoi   # Ground thermal diffusivity (m2/s)
@@ -132,7 +132,7 @@ def main():
     nt = 75						   # Number of time steps
     ts = H**2/(9.*aSoi)            # Bore field characteristic time
     #ttsMax = np.exp(5)
-    ydes = 25						# Design projected period (years)
+    ydes = 10						# Design projected period (years)
     dt = 3600.		                # (Control) Time step (s)
     tmax = ydes * 8760. * 3600.     # Maximum time
     #tmax = ttsMax*ts                # Maximum time
@@ -144,9 +144,9 @@ def main():
     # -------------------------------------------------------------------------
 
     # Field definition
-    N_1 = 3
-    N_2 = 3
-    nBor = N_1*N_2
+    N_1 = 4
+    N_2 = 4
+    nBor = 16
     boreField = gt.boreholes.rectangle_field(N_1, N_2, B, B, H, D, r_b)
     gFunc = gt.gfunction.uniform_temperature(boreField, time, aSoi, nSegments=nSegments, disp=True)
     gFunc = shortTermCorrection(time, gFunc, r_b, aSoi)
@@ -164,7 +164,7 @@ def main():
     gFuncCyclic = cyclicGFunc(time, gFunc, time2, gFunc2, ydes)
     gFuncAverage = averageGFunc(time, gFunc, time2, gFunc2, ydes)
 
-    writeRecord(time,gFuncCyclic)
+    writeRecord(time,gFuncAverage)
 
     # -------------------------------------------------------------------------
     # Figure
@@ -185,10 +185,12 @@ def main():
     # Adjust to plot window
     plt.tight_layout()
     # Draw g-function
-    ax1.plot(np.log(time2[1:]/ts), gFunc2[1:]*(2*np.pi*kSoi*H*nBor), 'k-', lw=1.5, label='Regular')
+    ax1.plot(np.log(time[1:]/ts), gFunc[1:]*(2*np.pi*kSoi*H*nBor), 'k-', lw=1.5, label='Regular')
     ax1.plot(np.log(time[1:]/ts), gFuncCyclic[1:]*(2*np.pi*kSoi*H*nBor), 'r--', lw=1.5, label='Cyclic')
     ax1.plot(np.log(time[1:]/ts), gFuncAverage[1:]*(2*np.pi*kSoi*H*nBor), 'r-o', lw=1.5, label='Average')
     ax1.legend(loc='upper left')
+
+    plt.show()
 
     return
 
