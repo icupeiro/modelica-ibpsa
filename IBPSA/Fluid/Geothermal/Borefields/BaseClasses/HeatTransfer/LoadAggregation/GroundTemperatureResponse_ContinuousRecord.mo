@@ -33,15 +33,15 @@ model GroundTemperatureResponse_ContinuousRecord
   parameter Real[i, 16-1] kappa_LT(each fixed=false)
     "Weight factor for each aggregation cell for long-term predictions";
 //   Modelica.SIunits.Time[16] futTime;
-  Modelica.Blocks.Interfaces.RealInput curTime(unit="s")
-    annotation (Placement(transformation(extent={{-120,-50},{-100,-30}}),
-        iconTransformation(extent={{-120,-50},{-100,-30}})));
-  Modelica.SIunits.Time dummyTime = time^1;
+//  Modelica.Blocks.Interfaces.RealInput curTime(unit="s")
+//    annotation (Placement(transformation(extent={{-120,-50},{-100,-30}}),
+//        iconTransformation(extent={{-120,-50},{-100,-30}})));
+//  Modelica.SIunits.Time dummyTime = time^1;
   //Real wT = IBPSA.Utilities.Math.Functions.spliceFunction(1,0, dummyTime-curTime-86400*7+3600, 3600)
-  Real wT = if dummyTime > curTime+86400*7 then 0 else 1
-  "weighting function to take only the last value of optimization";
-  Real[16-1] QBor_LT(unit="W")
-  "Long-term prediction of the ground loads";
+//  Real wT = if dummyTime > curTime+86400*7 then 0 else 1
+//  "weighting function to take only the last value of optimization";
+//  Real[16-1] QBor_LT(unit="W")
+//  "Long-term prediction of the ground loads";
 
   parameter Data.GFunctions.Template gFuncMultiY
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
