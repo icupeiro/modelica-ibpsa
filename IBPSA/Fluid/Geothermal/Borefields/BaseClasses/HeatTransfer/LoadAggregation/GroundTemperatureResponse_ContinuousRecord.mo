@@ -40,8 +40,8 @@ model GroundTemperatureResponse_ContinuousRecord
   //Real wT = IBPSA.Utilities.Math.Functions.spliceFunction(1,0, dummyTime-curTime-86400*7+3600, 3600)
 //  Real wT = if dummyTime > curTime+86400*7 then 0 else 1
 //  "weighting function to take only the last value of optimization";
-//  Real[16-1] QBor_LT(unit="W")
-//  "Long-term prediction of the ground loads";
+  Real[16-1] QBor_LT(unit="W")
+  "Long-term prediction of the ground loads";
 
   parameter Data.GFunctions.Template gFuncMultiY
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
