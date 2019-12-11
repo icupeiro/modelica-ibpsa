@@ -51,8 +51,10 @@ model GroundTemperatureResponse_ContinuousRecord
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
         iconTransformation(extent={{100,-76},{120,-56}})));
-
-
+  parameter Real Rb(unit="(m.K)/W") = 0.205
+    "Borehole thermal resistance Rb";
+  parameter Real Tg(unit="K") = 273.15 + 10
+  "Undisturbed ground temperature";
   Modelica.SIunits.HeatFlowRate[15] Qinj
   "Heat flow injected into the field";
   Modelica.SIunits.HeatFlowRate[15] Qgb(min=0)
@@ -61,13 +63,14 @@ model GroundTemperatureResponse_ContinuousRecord
   "Condenser heat flow";
   Real[15] COP
   "Heat pump COP";
-  Modelica.SIunits.Temperature[15] TevaOutLT
-  "Steady state prediction of the outlet evaporator temperature";
+  Modelica.SIunits.Temperature[15] Tf
+  "Steady state prediction of the average fluid temperature";
   Real[15] costLT
   "long-term cost";
   parameter Real electricityPrice;
   parameter Real gasPrice;
-
+  parameter Real A "COP offset";
+  parameter Real B "COP slope";
 
   Modelica.Blocks.Interfaces.RealInput Qext[15]
     annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
@@ -209,9 +212,9 @@ equation
 
   Qext = (-Qcon).*(COP-ones(15))./COP;
 
-  COP = 5.15*ones(15) + 0.1*delTBor_LT;
+  COP = A*ones(15) + B*Tf;
 
-  TevaOutLT = 4.46*ones(15) + (6/7)*delTBor_LT;
+  Tf = Tg*ones(15) + delTBor_LT - (Rb/(borFieDat.conDat.hBor*borFieDat.conDat.nBor))*QBor_LT;
 
  //  curTime = time;
   //  der(curTime) = 0;

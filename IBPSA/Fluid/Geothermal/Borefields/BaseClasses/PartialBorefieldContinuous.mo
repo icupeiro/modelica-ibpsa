@@ -90,8 +90,12 @@ partial model PartialBorefieldContinuous
     intervals=intervals,
     gFuncMultiY=gFuncMultiY,
     gFuncStandard=gFuncStandard,
+    Rb=Rb,
+    Tg=Tg,
     electricityPrice=electricityPrice,
-    gasPrice=gasPrice) "Ground temperature response"
+    gasPrice=gasPrice,
+    A=A,
+    B=B)               "Ground temperature response"
     annotation (Placement(transformation(extent={{20,70},{40,90}})));
 
   replaceable IBPSA.Fluid.Geothermal.Borefields.BaseClasses.Boreholes.BaseClasses.PartialBorehole borHol constrainedby
@@ -140,6 +144,10 @@ partial model PartialBorefieldContinuous
   parameter Real gasPrice;
   parameter Data.GFunctions.Template gFuncStandard
     annotation (Placement(transformation(extent={{0,-80},{20,-60}})));
+  parameter Real A "COP offset";
+  parameter Real B "COP slope";
+  parameter Real Tg=273.15 + 10 "Undisturbed ground temperature";
+  parameter Real Rb=0.205 "Borehole thermal resistance Rb";
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";
