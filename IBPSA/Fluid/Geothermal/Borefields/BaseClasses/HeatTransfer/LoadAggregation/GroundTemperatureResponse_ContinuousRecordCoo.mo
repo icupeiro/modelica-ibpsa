@@ -68,6 +68,8 @@ model GroundTemperatureResponse_ContinuousRecordCoo
   "ASHP heat flow";
   Modelica.SIunits.HeatFlowRate[15] Qpc(min=0)
   "Passive cooling heat flow";
+  Modelica.SIunits.HeatFlowRate[15] Qpc_max(min=0)
+  "Maximum passive cooling heat flow";
   Real[15] COP
   "Heat pump COP";
   Real[15] EER
