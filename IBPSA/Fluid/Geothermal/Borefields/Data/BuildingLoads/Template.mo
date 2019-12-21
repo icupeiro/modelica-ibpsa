@@ -7,6 +7,8 @@ record Template "Template for external g-functions data records"
   "Building heating needs";
   parameter Modelica.SIunits.HeatFlowRate[365] Qbuic
   "Building cooling needs";
+  parameter Modelica.SIunits.Temperature[365] Te
+  "Average daily external temperature";
 
   annotation (  defaultComponentName="gFunc",
   Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
