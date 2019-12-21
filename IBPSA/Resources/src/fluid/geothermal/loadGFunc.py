@@ -16,6 +16,7 @@ from scipy.interpolate import interp1d
 from scipy.special import j0, j1, y0, y1, exp1
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
+import pandas as pd
 
 
 def writeRecord(tSer,gFunc):

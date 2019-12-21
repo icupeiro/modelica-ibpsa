@@ -46,9 +46,6 @@ model GroundTemperatureResponse_Continuous_portT
     "Distance from the surface to the considered segment";
   parameter Integer nBor;
 
-  Modelica.Thermal.HeatTransfer.Components.HeatCapacitor Tug[nDis](C=Modelica.Constants.inf,
-      T(fixed=true, start=TExt_start))
-    annotation (Placement(transformation(extent={{-10,-6},{10,14}})));
 protected
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
@@ -127,7 +124,6 @@ initial equation
       forceGFunCalc=forceGFunCalc);
 
 equation
-  //Tb.T =Tug.T + delTBor*ones(nDis);
   der(Tb.T) = kappa[:]*der(QAgg_flow)*ones(nDis);
   delTBor = QAgg_flow[:]*kappa[:];
 
