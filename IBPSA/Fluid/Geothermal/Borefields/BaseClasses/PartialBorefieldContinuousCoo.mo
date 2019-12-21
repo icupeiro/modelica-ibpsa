@@ -139,8 +139,9 @@ partial model PartialBorefieldContinuousCoo
     start=0)
     "temperature difference between the original g-function and the cyclic one"
     annotation (Placement(transformation(extent={{100,58},{120,78}})));
-  Modelica.Blocks.Interfaces.RealInput QBor_LT[15]
-    annotation (Placement(transformation(extent={{-120,34},{-80,74}})));
+  Modelica.Blocks.Interfaces.RealInput QBor_Ext[15] annotation (Placement(
+        transformation(extent={{-120,50},{-80,90}}), iconTransformation(extent=
+            {{-120,50},{-80,90}})));
   parameter Modelica.SIunits.Time tStep=604800
     "Time-step of the long-term predictions";
   parameter Real intervals[:]={1,2,3,4,8,12,16,20,24,28,32,36,40,44,48,52}
@@ -168,6 +169,9 @@ partial model PartialBorefieldContinuousCoo
   parameter Real C "EER offset";
   parameter Real D "EER slope";
   parameter Real Tbui=273.15 + 23 "maximum supply temperature to the building";
+  Modelica.Blocks.Interfaces.RealInput QBor_Inj[15]
+    annotation (Placement(transformation(extent={{-120,8},{-80,48}}),
+        iconTransformation(extent={{-120,8},{-80,48}})));
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";
@@ -267,14 +271,16 @@ equation
           41,73.4},{41,54.8},{78.6,54.8}}, color={0,0,127}));
   connect(groTemRes.QBor_flow, QBor_flow) annotation (Line(points={{19,80},{14,
           80},{14,98},{90,98},{90,90},{110,90}}, color={0,0,127}));
-  connect(groTemRes.QBor_LT, QBor_LT) annotation (Line(points={{19,87},{4,87},{
-          4,62},{-74,62},{-74,54},{-100,54}}, color={0,0,127}));
   connect(Qbuih, groTemRes.Qbuih) annotation (Line(points={{-110,-62},{-82,-62},
           {-82,38},{19,38},{19,73.2}}, color={0,0,127}));
   connect(Qbuic, groTemRes.Qbuic) annotation (Line(points={{-110,-88},{-74,-88},
           {-74,-16},{19,-16},{19,71}}, color={0,0,127}));
   connect(Te, groTemRes.Te) annotation (Line(points={{-110,-36},{-68,-36},{-68,
           50},{19,50},{19,75.4}}, color={0,0,127}));
+  connect(QBor_Ext, groTemRes.Qext) annotation (Line(points={{-100,70},{-64,70},
+          {-64,62},{12,62},{12,87},{19,87}}, color={0,0,127}));
+  connect(QBor_Inj, groTemRes.Qinj) annotation (Line(points={{-100,28},{8,28},{
+          8,85.4},{19,85.4}}, color={0,0,127}));
   annotation (
     Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
         graphics={

@@ -40,9 +40,8 @@ model GroundTemperatureResponse_ContinuousRecordCoo
   //Real wT = IBPSA.Utilities.Math.Functions.spliceFunction(1,0, dummyTime-curTime-86400*7+3600, 3600)
 //  Real wT = if dummyTime > curTime+86400*7 then 0 else 1
 //  "weighting function to take only the last value of optimization";
-  Modelica.Blocks.Interfaces.RealInput[16-1] QBor_LT(unit="W")
-  "Long-term prediction of the ground loads"
-   annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
+  Real[16-1] QBor_LT(unit="W")
+  "Long-term prediction of the ground loads";
 
   parameter Data.GFunctions.Template gFuncMultiY
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
@@ -56,10 +55,12 @@ model GroundTemperatureResponse_ContinuousRecordCoo
     "Borehole thermal resistance Rb";
   parameter Real Tg(unit="K") = 273.15 + 10
   "Undisturbed ground temperature";
-  Modelica.SIunits.HeatFlowRate[15] Qext
-  "Heat flow extracted from the field";
-  Modelica.SIunits.HeatFlowRate[15] Qinj
-  "Heat flow injected into the field";
+  Modelica.Blocks.Interfaces.RealInput[15] Qext(unit="W")
+  "Heat flow extracted from the field"
+    annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
+  Modelica.Blocks.Interfaces.RealInput[15] Qinj(unit="W")
+  "Heat flow injected into the field"
+    annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
   Modelica.SIunits.HeatFlowRate[15] Qgb(min=0)
   "Gas boiler heat flow";
   Modelica.SIunits.HeatFlowRate[15] Qcon(min=0)
