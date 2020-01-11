@@ -82,9 +82,10 @@ model GroundTemperatureResponse_ContinuousRecordCoo
   parameter Real electricityPrice;
   parameter Real gasPrice;
   parameter Real A "COP offset";
-  parameter Real B "COP slope";
+  parameter Real B "COP fluid slope";
   parameter Real C "EER offset";
   parameter Real D "EER slope";
+  parameter Real E "COP load slope";
   parameter Real Tbui = 273.15+23 "maximum supply temperature to the building";
   parameter Real CNom "Nominal heat capacity rate";
   parameter Real Ppump = 190 "Nominal power use of the fluid mover for passive cooling [W]";
@@ -232,7 +233,7 @@ equation
 
   EER = C*ones(15) + D*Te;
 
-  COP = A*ones(15) + B*Tf;
+  COP = A*ones(15) + B*Tf + E*Te;
 
   Tf = Tg*ones(15) + delTBor_LT - (Rb/(borFieDat.conDat.hBor*borFieDat.conDat.nBor))*QBor_LT;
 
