@@ -98,6 +98,7 @@ partial model PartialBorefieldContinuousCoo
     B=B,
     C=C,
     D=D,
+    E=E,
     Tbui=Tbui,
     CNom=CNom,
     Ppump=Ppump)       "Ground temperature response"
@@ -172,6 +173,7 @@ partial model PartialBorefieldContinuousCoo
   Modelica.Blocks.Interfaces.RealInput QBor_Inj[15]
     annotation (Placement(transformation(extent={{-120,8},{-80,48}}),
         iconTransformation(extent={{-120,8},{-80,48}})));
+  parameter Real E "COP load slope";
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";
@@ -280,7 +282,7 @@ equation
   connect(QBor_Ext, groTemRes.Qext) annotation (Line(points={{-100,70},{-64,70},
           {-64,62},{12,62},{12,87},{19,87}}, color={0,0,127}));
   connect(QBor_Inj, groTemRes.Qinj) annotation (Line(points={{-100,28},{8,28},{
-          8,85.4},{19,85.4}}, color={0,0,127}));
+          8,87},{19,87}},     color={0,0,127}));
   annotation (
     Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
         graphics={
