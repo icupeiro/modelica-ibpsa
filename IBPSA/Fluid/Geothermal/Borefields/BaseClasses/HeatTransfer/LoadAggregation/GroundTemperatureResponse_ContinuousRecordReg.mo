@@ -79,9 +79,6 @@ model GroundTemperatureResponse_ContinuousRecordReg
  Modelica.Blocks.Interfaces.RealInput[15] Qbuih(unit="W")
     annotation (Placement(transformation(extent={{-120,-78},{-100,-58}}),
         iconTransformation(extent={{-120,-78},{-100,-58}})));
- Modelica.Blocks.Interfaces.RealInput[15] Qbuic(unit="W")
-    annotation (Placement(transformation(extent={{-120,-100},{-100,-80}}),
-        iconTransformation(extent={{-120,-100},{-100,-80}})));
 
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
