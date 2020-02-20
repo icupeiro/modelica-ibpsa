@@ -55,9 +55,12 @@ model GroundTemperatureResponse_ContinuousRecordReg
     "Borehole thermal resistance Rb";
   parameter Real Tg(unit="K") = 273.15 + 10
   "Undisturbed ground temperature";
-  Modelica.SIunits.HeatFlowRate[15] Qinj
-  "Heat flow injected into the field";
+  Modelica.Blocks.Interfaces.RealInput Qinj[15]
+  "Heat flow injected into the field"
+      annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
   Modelica.SIunits.HeatFlowRate[15] Qreg(min=0)
+  "Regeneration heat flow";
+  Modelica.SIunits.HeatFlowRate[15] Qgb(min=0)
   "Gas boiler heat flow";
   parameter Modelica.SIunits.HeatFlowRate[15] Qreg_max = 4180*ones(15);
   Modelica.SIunits.HeatFlowRate[15] Qcon(min=0)
@@ -74,7 +77,7 @@ model GroundTemperatureResponse_ContinuousRecordReg
   parameter Real B "COP slope";
 
   Modelica.Blocks.Interfaces.RealInput Qext[15]
-    annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
+    annotation (Placement(transformation(extent={{-120,78},{-100,98}})));
 
  Modelica.Blocks.Interfaces.RealInput[15] Qbuih(unit="W")
     annotation (Placement(transformation(extent={{-120,-78},{-100,-58}}),
@@ -204,7 +207,7 @@ equation
 
   Qinj = Qreg;
 
-  Qbuih = Qcon;
+  Qbuih = Qcon + Qgb;
 
   Qext = (-Qcon).*(COP-ones(15))./COP;
 
@@ -221,7 +224,7 @@ equation
    for j in 2:16 loop
       //Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
       //Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
-      costLT[j-1] = (electricityPrice/1000*((Qcon[j-1]/COP[j-1])+450*Qreg[j-1]/Qreg_max[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
+      costLT[j-1] = (electricityPrice/1000*((Qcon[j-1]/COP[j-1])+Qgb[j-1]+450*Qreg[j-1]/Qreg_max[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
    end for;
 
 //         Qbuih[j-1] =sum(buiNeeds.Qbuih[integer(mod(time + intervals[j - 1]*
