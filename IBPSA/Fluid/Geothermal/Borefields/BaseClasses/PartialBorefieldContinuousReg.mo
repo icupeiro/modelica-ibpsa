@@ -136,7 +136,7 @@ partial model PartialBorefieldContinuousReg
             {{-120,50},{-80,90}})));
   Modelica.Blocks.Interfaces.RealInput QBor_Inj[15] annotation (Placement(
         transformation(extent={{-120,20},{-80,60}}), iconTransformation(extent=
-            {{-120,50},{-80,90}})));
+            {{-120,8},{-80,48}})));
 protected
   parameter Modelica.SIunits.Height z[nSeg]={borFieDat.conDat.hBor/nSeg*(i - 0.5) for i in 1:nSeg}
     "Distance from the surface to the considered segment";

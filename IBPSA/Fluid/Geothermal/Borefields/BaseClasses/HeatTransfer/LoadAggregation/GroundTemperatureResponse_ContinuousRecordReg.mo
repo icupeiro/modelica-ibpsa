@@ -51,7 +51,7 @@ model GroundTemperatureResponse_ContinuousRecordReg
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
         iconTransformation(extent={{100,-76},{120,-56}})));
-  parameter Real Rb(unit="(m.K)/W") = 0.205
+  parameter Real Rb(unit="(m.K)/W") = 0.169
     "Borehole thermal resistance Rb";
   parameter Real Tg(unit="K") = 273.15 + 10
   "Undisturbed ground temperature";
