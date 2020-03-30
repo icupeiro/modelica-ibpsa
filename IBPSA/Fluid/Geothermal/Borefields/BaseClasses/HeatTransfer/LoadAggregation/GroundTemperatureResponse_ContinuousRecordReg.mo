@@ -55,7 +55,7 @@ model GroundTemperatureResponse_ContinuousRecordReg
     "Borehole thermal resistance Rb";
   parameter Real Tg(unit="K") = 273.15 + 10
   "Undisturbed ground temperature";
-  Real[15] Qinj
+  Modelica.Blocks.Interfaces.RealInput Qinj[15]
   "Heat flow injected into the field"
       annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
   Modelica.SIunits.HeatFlowRate[15] Qreg(min=0)
