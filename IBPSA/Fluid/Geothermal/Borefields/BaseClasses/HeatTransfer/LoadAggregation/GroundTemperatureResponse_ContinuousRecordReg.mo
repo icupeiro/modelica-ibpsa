@@ -55,7 +55,7 @@ model GroundTemperatureResponse_ContinuousRecordReg
     "Borehole thermal resistance Rb";
   parameter Real Tg(unit="K") = 273.15 + 10
   "Undisturbed ground temperature";
-  Modelica.Blocks.Interfaces.RealInput Qinj[15]
+  Real[15] Qinj
   "Heat flow injected into the field"
       annotation (Placement(transformation(extent={{-120,60},{-100,80}})));
   Modelica.SIunits.HeatFlowRate[15] Qreg(min=0)
@@ -69,7 +69,7 @@ model GroundTemperatureResponse_ContinuousRecordReg
   "Heat pump COP";
   Modelica.SIunits.Temperature[15] Tf
   "Steady state prediction of the average fluid temperature";
-  Real[15] costLT
+  Real[15] costLT(min=0)
   "long-term cost";
   parameter Real electricityPrice;
   parameter Real gasPrice;
@@ -224,7 +224,7 @@ equation
    for j in 2:16 loop
       //Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
       //Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
-      costLT[j-1] = (electricityPrice/1000*((Qcon[j-1]/COP[j-1])+Qgb[j-1]+450*Qreg[j-1]/Qreg_max[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
+      costLT[j-1] = (electricityPrice/1000*((Qcon[j-1]/COP[j-1])+Qgb[j-1]+150*Qreg[j-1]/Qreg_max[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
    end for;
 
 //         Qbuih[j-1] =sum(buiNeeds.Qbuih[integer(mod(time + intervals[j - 1]*
