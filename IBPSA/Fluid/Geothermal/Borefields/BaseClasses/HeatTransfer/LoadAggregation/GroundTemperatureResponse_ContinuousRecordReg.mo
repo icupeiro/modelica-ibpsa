@@ -62,7 +62,7 @@ model GroundTemperatureResponse_ContinuousRecordReg
   "Regeneration heat flow";
   Modelica.SIunits.HeatFlowRate[15] Qgb(min=0)
   "Gas boiler heat flow";
-  parameter Modelica.SIunits.HeatFlowRate[15] Qreg_max = 4180*ones(15);
+  Modelica.SIunits.HeatFlowRate[15] Qreg_max = {max(0, 4186*(dilje_T.y - Tf[i])) for i in 1:15};
   Modelica.SIunits.HeatFlowRate[15] Qcon(min=0)
   "Condenser heat flow";
   Real[15] COP
@@ -132,6 +132,11 @@ model GroundTemperatureResponse_ContinuousRecordReg
   parameter Real[16-1,16-1] deltaG(each fixed=false)
   "Evaluation of the g-function at the long-term intervals";
 
+  Modelica.Blocks.Sources.Cosine dilje_T(
+    amplitude=-6,
+    freqHz=1/31536000,
+    offset=273.15 + 10)
+    annotation (Placement(transformation(extent={{-70,40},{-50,60}})));
 initial equation
   QAgg_flow = zeros(i);
   delTBor = 0;
