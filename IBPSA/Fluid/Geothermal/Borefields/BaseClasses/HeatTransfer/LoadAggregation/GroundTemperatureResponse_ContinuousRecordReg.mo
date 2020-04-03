@@ -132,9 +132,11 @@ model GroundTemperatureResponse_ContinuousRecordReg
   parameter Real[16-1,16-1] deltaG(each fixed=false)
   "Evaluation of the g-function at the long-term intervals";
 
-  Modelica.Blocks.Sources.Cosine dilje_T(
+  Modelica.Blocks.Sources.Cosine dilje_T[15](
     amplitude=-6,
     freqHz=1/31536000,
+    phase={tStep*(intervals[i + 1] + intervals[i])/2/31536000*2*Modelica.Constants.pi
+        for i in 1:15},
     offset=273.15 + 10)
     annotation (Placement(transformation(extent={{-70,40},{-50,60}})));
 initial equation
