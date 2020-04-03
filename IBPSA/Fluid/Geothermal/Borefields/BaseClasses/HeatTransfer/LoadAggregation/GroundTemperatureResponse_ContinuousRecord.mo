@@ -214,7 +214,7 @@ equation
 
   COP = A*ones(15) + B*Tf;
 
-  Tf = Tg*ones(15) + delTBor_LT - (Rb/(borFieDat.conDat.hBor*borFieDat.conDat.nBor))*QBor_LT;
+  Tf = Tg*ones(15) + delTBor_LT + (Rb/(borFieDat.conDat.hBor*borFieDat.conDat.nBor))*QBor_LT;
 
  //  curTime = time;
   //  der(curTime) = 0;

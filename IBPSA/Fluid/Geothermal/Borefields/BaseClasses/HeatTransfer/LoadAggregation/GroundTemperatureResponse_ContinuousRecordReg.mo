@@ -62,7 +62,7 @@ model GroundTemperatureResponse_ContinuousRecordReg
   "Regeneration heat flow";
   Modelica.SIunits.HeatFlowRate[15] Qgb(min=0)
   "Gas boiler heat flow";
-  Modelica.SIunits.HeatFlowRate[15] Qreg_max = {max(0, 4186*(dilje_T[i].y - Tf[i])) for i in 1:15};
+  Modelica.SIunits.HeatFlowRate[15] Qreg_max = {max(100, 4186*(dilje_T.y - Tf[i])) for i in 1:15};
   Modelica.SIunits.HeatFlowRate[15] Qcon(min=0)
   "Condenser heat flow";
   Real[15] COP
@@ -231,7 +231,7 @@ equation
    for j in 2:16 loop
       //Qbuih[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,2], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
       //Qbuic[j-1] = sum(IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolateVector(Qbui[:,1], Qbui[:,3], mod((time + (intervals[j-1]-1)*tStep)/86400 + k,365)) for k in 1:(intervals[j]-intervals[j-1])*tStep/86400)/((intervals[j] - intervals[j - 1])*tStep/86400);
-      costLT[j-1] = (electricityPrice/1000*((Qcon[j-1]/COP[j-1])+Qgb[j-1]+150*Qreg[j-1]/Qreg_max[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
+      costLT[j-1] = (electricityPrice/1000*((Qcon[j-1]/COP[j-1])+Qgb[j-1]+300*Qreg[j-1]/Qreg_max[j-1]))*((intervals[j] - intervals[j - 1])*tStep/3600);
    end for;
 
 //         Qbuih[j-1] =sum(buiNeeds.Qbuih[integer(mod(time + intervals[j - 1]*
