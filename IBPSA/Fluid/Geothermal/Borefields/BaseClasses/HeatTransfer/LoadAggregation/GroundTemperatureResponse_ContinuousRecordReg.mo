@@ -62,7 +62,7 @@ model GroundTemperatureResponse_ContinuousRecordReg
   "Regeneration heat flow";
   Modelica.SIunits.HeatFlowRate[15] Qgb(min=0)
   "Gas boiler heat flow";
-  Modelica.SIunits.HeatFlowRate[15] Qreg_max = {max(0, 4186*(dilje_T.y - Tf[i])) for i in 1:15};
+  Modelica.SIunits.HeatFlowRate[15] Qreg_max = {max(100, 4186*(dilje_T.y - Tf[i])) for i in 1:15};
   Modelica.SIunits.HeatFlowRate[15] Qcon(min=0)
   "Condenser heat flow";
   Real[15] COP
