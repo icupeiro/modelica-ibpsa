@@ -247,6 +247,8 @@ equation
           80},{14,98},{90,98},{90,90},{110,90}}, color={0,0,127}));
   connect(QBor_flow_LT, groTemRes.QBor_flow_LT) annotation (Line(points={{-100,24},
           {-40,24},{-40,88},{19,88}}, color={0,0,127}));
+  connect(groTemRes.delTBor_LT, delTBor_LT) annotation (Line(points={{41,87},{
+          41,56.5},{110,56.5},{110,26}}, color={0,0,127}));
   annotation (
     Icon(coordinateSystem(preserveAspectRatio=false, extent={{-100,-100},{100,100}}),
         graphics={
