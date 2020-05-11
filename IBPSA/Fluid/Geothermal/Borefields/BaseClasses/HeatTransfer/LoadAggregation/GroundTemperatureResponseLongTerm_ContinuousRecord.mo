@@ -9,7 +9,6 @@ model GroundTemperatureResponseLongTerm_ContinuousRecord
   parameter IBPSA.Fluid.Geothermal.Borefields.Data.Borefield.Template borFieDat
     "Record containing all the parameters of the borefield model" annotation (
      choicesAllMatching=true, Placement(transformation(extent={{-80,-80},{-60,-60}})));
-
   Modelica.Blocks.Interfaces.RealOutput delTBor(unit="K")
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-14},{126,12}}),
@@ -18,7 +17,6 @@ model GroundTemperatureResponseLongTerm_ContinuousRecord
     "Heat flow from all boreholes combined (positive if heat from fluid into soil)"
     annotation (Placement(transformation(extent={{-120,-10},{-100,10}}),
         iconTransformation(extent={{-120,-10},{-100,10}})));
-
   Modelica.SIunits.HeatFlowRate[i] QAgg_flow
     "Vector of aggregated loads";
    Modelica.SIunits.HeatFlowRate[i] QFace
@@ -47,7 +45,6 @@ model GroundTemperatureResponseLongTerm_ContinuousRecord
   "Long-term prediction of the ground loads"
       annotation (Placement(transformation(extent={{-120,70},{-100,90}}),
         iconTransformation(extent={{-120,70},{-100,90}})));
-
   parameter Data.GFunctions.Template gFuncMultiY
     annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
   parameter Data.GFunctions.Template gFuncStandard
@@ -56,8 +53,6 @@ model GroundTemperatureResponseLongTerm_ContinuousRecord
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
         iconTransformation(extent={{100,-76},{120,-56}})));
-
-
   constant Integer nSegMax = 1500 "Max total number of segments in g-function calculation";
   final parameter Integer nSeg = integer(if 12*borFieDat.conDat.nBor<nSegMax then 12 else floor(nSegMax/borFieDat.conDat.nBor))
     "Number of segments per borehole for g-function calculation";
@@ -67,7 +62,6 @@ model GroundTemperatureResponseLongTerm_ContinuousRecord
   constant Integer nTimTot = nTimSho+nTimLon
     "Total length of g-function vector";
   constant Real lvlBas = 2 "Base for exponential cell growth between levels";
-
   parameter String SHAgfun=
     IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.ThermalResponseFactors.shaGFunction(
       nBor=borFieDat.conDat.nBor,
@@ -96,52 +90,42 @@ model GroundTemperatureResponseLongTerm_ContinuousRecord
     "g-function input from matrix, with the second column as temperature Tstep";
   final parameter Modelica.SIunits.Time[i] nu(each fixed=false)
     "Time vector for load aggregation";
-  final parameter Modelica.SIunits.Time[i,16] nu_LT(each fixed=false)
+  final parameter Modelica.SIunits.Time[i,nPred+1] nu_LT(each fixed=false)
     "Time vector for load aggregation for long-term predictions, i.e. start point is increased";
   final parameter Real[i] kappa(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] kappaStandard(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
-
   parameter Real[16-1,16-1] deltaG(each fixed=false)
   "Evaluation of the g-function at the long-term intervals";
-
 initial equation
   QAgg_flow = zeros(i);
   delTBor = 0;
-
   (nu,rCel) = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationCellTimes(
     i=i,
     lvlBas=lvlBas,
     nCel=nCel,
     tLoaAgg=tLoaAgg,
     timFin=timFin);
-
   for j in 1:16 loop
     nu_LT[:,j] = nu[:] + tStep*intervals[j]*ones(i);
   end for;
-
   kappa = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
     i=i,
     nTimTot=nTimTot,
     TStep=timSer,
     nu=nu);
-
   kappaStandard = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
     i=i,
     nTimTot=nTimTot,
     TStep=timSerStandard,
     nu=nu);
-
   timSer[:,1] =gFuncMultiY.timExp[:];
   timSer[:,2] =gFuncMultiY.gFunc[:];
-
   timSerStandard[:,1] =gFuncStandard.timExp[:];
   timSerStandard[:,2] =gFuncStandard.gFunc[:];
-
   // curTime = time;
-
   for k in 1:nPred loop
     for j in 1:k loop
       deltaG[j,k] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[k+1]-intervals[j]))
@@ -151,7 +135,6 @@ initial equation
       deltaG[j,k] = 0;
     end for;
   end for;
-
  for j in 1:nPred loop
        kappa_LT[1,j] = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j+1]-1) + nu[1])
                      - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j+1]-1));
@@ -160,7 +143,6 @@ initial equation
                     - IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.interpolate(timSer[:,1], timSer[:,2], tStep*(intervals[j+1]-1) + nu[k-1]);
       end for;
  end for;
-
 equation
   assert(
     size(gFuncMultiY.timExp, 1) == 76,
@@ -172,18 +154,15 @@ equation
     AssertionLevel.error);
   delTBor = QAgg_flow[:]*kappa[:];
   delTBorStandard = QAgg_flow[:]*kappaStandard[:];
-
   for i in 1:nPred loop
     delTBor_LT[i] = QAgg_flow[:]*kappa_LT[:,i] + QBor_flow_LT[:]*deltaG[:,i];
   end for;
-
 //    // "Upwind" scheme
 //    der(QAgg_flow[1]) = -1/(rCel[1]*tLoaAgg)*(QAgg_flow[1] - QBor_flow);
 //    for j in 2:i-1 loop
 //      der(QAgg_flow[j]) = -1/(rCel[j]*tLoaAgg)*(QAgg_flow[j] - QAgg_flow[j-1]);
 //    end for;
 //    der(QAgg_flow[i]) = 1/(rCel[i]*tLoaAgg)*(QAgg_flow[i-1]);
-
    // "QUICK" scheme
    QFace[1] = QBor_flow;
    QFace[2] = 0.5*(QAgg_flow[1] + QAgg_flow[2]) - 0.125*(0.5*rCel[1] + 0.5*rCel[2])^2/rCel[1]*((QAgg_flow[2] - QAgg_flow[1])/(0.5*rCel[1] + 0.5*rCel[2]) - (QAgg_flow[1] - QBor_flow)/(0.5*rCel[1]));
@@ -194,7 +173,6 @@ equation
      der(QAgg_flow[j])*rCel[j]*tLoaAgg = QFace[j] - QFace[j+1];
    end for;
    der(QAgg_flow[i]) = 1/(rCel[i]*tLoaAgg)*(QAgg_flow[i-1]);
-
   annotation (Icon(coordinateSystem(preserveAspectRatio=false), graphics={
         Rectangle(
           extent={{-100,100},{100,-100}},
