@@ -108,7 +108,7 @@ initial equation
     nCel=nCel,
     tLoaAgg=tLoaAgg,
     timFin=timFin);
-  for j in 1:16 loop
+  for j in 1:nPred+1 loop
     nu_LT[:,j] = nu[:] + tStep*intervals[j]*ones(i);
   end for;
   kappa = IBPSA.Fluid.Geothermal.Borefields.BaseClasses.HeatTransfer.LoadAggregation.aggregationWeightingFactors(
