@@ -33,6 +33,8 @@ model GroundTemperatureResponseLongTerm_ContinuousRecord
   "Array with the long-term predictions of deltaT"
   annotation (Placement(transformation(extent={{100,66},{126,92}}),
         iconTransformation(extent={{100,60},{120,80}})));
+  Modelica.SIunits.TemperatureDifference[nPred] delTBor_ST
+  "Array of the short-term deltaT contribution for each prediction";
   parameter Real[i, nPred] kappa_LT(each fixed=false)
     "Weight factor for each aggregation cell for long-term predictions";
 //   Modelica.SIunits.Time[16] futTime;
@@ -104,7 +106,7 @@ model GroundTemperatureResponseLongTerm_ContinuousRecord
     "Weight factor for each aggregation cell";
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
 
-  parameter Real[16-1,16-1] deltaG(each fixed=false)
+  parameter Real[nPred,nPred] deltaG(each fixed=false)
   "Evaluation of the g-function at the long-term intervals";
 
 initial equation
@@ -173,8 +175,14 @@ equation
   delTBor = QAgg_flow[:]*kappa[:];
   delTBorStandard = QAgg_flow[:]*kappaStandard[:];
 
+
+
   for i in 1:nPred loop
-    delTBor_LT[i] = QAgg_flow[:]*kappa_LT[:,i] + QBor_flow_LT[:]*deltaG[:,i];
+    delTBor_ST[i] =  QAgg_flow[:]*kappa_LT[:,i];
+  end for;
+
+  for i in 1:nPred loop
+    delTBor_LT[i] = delTBor_ST[i] + QBor_flow_LT[:]*deltaG[:,i];
   end for;
 
 //    // "Upwind" scheme
