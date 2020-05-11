@@ -1,6 +1,6 @@
 within IBPSA.Fluid.Geothermal.Borefields.Data.BuildingLoads;
 record BESTESTCooDom
-  extends Template(
+  extends DailyTemplate(
     hou = {
     0,
 1,
