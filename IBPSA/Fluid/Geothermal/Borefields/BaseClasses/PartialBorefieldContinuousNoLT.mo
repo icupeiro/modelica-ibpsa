@@ -113,7 +113,7 @@ partial model PartialBorefieldContinuousNoLT
     annotation (Placement(transformation(extent={{-10,-50},{10,-30}})));
 
   parameter Data.GFunctions.Template gFuncMultiY
-    annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
+    annotation (Evaluate=true,Placement(transformation(extent={{-40,-80},{-20,-60}})));
   Modelica.Blocks.Interfaces.RealOutput QBor_flow(
     final unit="W",
     displayUnit="W",

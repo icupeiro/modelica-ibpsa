@@ -49,6 +49,8 @@ protected
       Medium.X_default)) "Dynamic viscosity of the fluid";
   parameter Real Rgb_val(fixed=false)
     "Thermal resistance between grout zone and borehole wall";
+  parameter Real Rgb_val2=Rgb_val^1
+    annotation(Evaluate=true);
   parameter Real RCondGro_val(fixed=false)
     "Thermal resistance between: pipe wall to capacity in grout";
   parameter Real x(fixed=false) "Capacity location";

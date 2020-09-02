@@ -29,6 +29,8 @@ model InternalHEXOneUTube
 
 protected
   parameter Real Rgg_val(fixed=false) "Thermal resistance between the two grout zones";
+  final parameter Real Rgg_val2=Rgg_val^1
+    annotation(Evaluate=true);
 
 public
   Modelica.Blocks.Sources.RealExpression RVol1(y=
@@ -61,8 +63,8 @@ public
       dynFil=dynFil,
       hSeg=hSeg,
       energyDynamics=energyDynamics,
-      Rgb_val=Rgb_val,
-      Rgg_val=Rgg_val,
+      Rgb_val=Rgb_val2,
+      Rgg_val=Rgg_val2,
       RCondGro_val=RCondGro_val,
       borFieDat=borFieDat,
       T_start=TGro_start)

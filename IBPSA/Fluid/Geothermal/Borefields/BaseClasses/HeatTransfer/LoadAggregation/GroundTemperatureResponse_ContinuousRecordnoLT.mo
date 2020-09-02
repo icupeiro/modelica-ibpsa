@@ -26,9 +26,9 @@ model GroundTemperatureResponse_ContinuousRecordnoLT
 
 
   parameter Data.GFunctions.Template gFuncMultiY
-    annotation (Placement(transformation(extent={{-40,-80},{-20,-60}})));
+    annotation (Evaluate=true, Placement(transformation(extent={{-40,-80},{-20,-60}})));
   parameter Data.GFunctions.Template gFuncStandard
-    annotation (Placement(transformation(extent={{-8,-80},{12,-60}})));
+    annotation (Evaluate=true,Placement(transformation(extent={{-8,-80},{12,-60}})));
   Modelica.Blocks.Interfaces.RealOutput delTBorStandard(unit="K")
     "Temperature difference current borehole wall temperature minus initial borehole wall temperature"
     annotation (Placement(transformation(extent={{100,-66},{126,-40}}),
@@ -76,7 +76,8 @@ model GroundTemperatureResponse_ContinuousRecordnoLT
   final parameter Real[i] kappa(each fixed=false)
     "Weight factor for each aggregation cell";
   final parameter Real[i] kappaStandard(each fixed=false)
-    "Weight factor for each aggregation cell";
+    "Weight factor for each aggregation cell"
+    annotation(Evaluate=true);
   final parameter Real[i] rCel(each fixed=false) "Cell widths";
 
 initial equation
