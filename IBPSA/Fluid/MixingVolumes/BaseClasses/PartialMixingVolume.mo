@@ -58,7 +58,11 @@ protected
     final m_flow_nominal = m_flow_nominal,
     final allowFlowReversal = allowFlowReversal,
     final m_flow_small = m_flow_small,
-    final prescribedHeatFlowRate=prescribedHeatFlowRate) if
+    final prescribedHeatFlowRate=prescribedHeatFlowRate,
+    hOut(start=Medium.specificEnthalpy_pTX(
+                 p=p_start,
+                 T=T_start,
+                 X=X_start))) if
          useSteadyStateTwoPort "Model for steady-state balance if nPorts=2"
         annotation (Placement(transformation(extent={{20,0},{40,20}})));
   IBPSA.Fluid.Interfaces.ConservationEquation dynBal(
@@ -275,12 +279,12 @@ drives heat transfer such as by conduction,
 then the heat transfer would depend on upstream and the <i>downstream</i>
 temperatures for small mass flow rates.
 This can give wrong results. Consider for example a mass flow rate that is positive
-but very close to zero. Suppose the upstream temperature is <i>20</i>&circ;C,
-the downstream temperature is <i>10</i>&circ;C, and the heat port is
-connected through a heat conductor to a boundary condition of <i>20</i>&circ;C.
+but very close to zero. Suppose the upstream temperature is <i>20</i>&deg;C,
+the downstream temperature is <i>10</i>&deg;C, and the heat port is
+connected through a heat conductor to a boundary condition of <i>20</i>&deg;C.
 Then, <code>hOut = (port_b.h_outflow + port_a.h_outflow)/2</code> and hence
 the temperature <code>heatPort.T</code>
-is <i>15</i>&circ;C. Therefore, heat is added to the component.
+is <i>15</i>&deg;C. Therefore, heat is added to the component.
 As the mass flow rate is by assumption very small, the fluid that leaves the component
 will have a very high temperature, violating the 2nd law.
 To avoid this situation, if
@@ -298,6 +302,12 @@ IBPSA.Fluid.MixingVolumes</a>.
 </p>
 </html>", revisions="<html>
 <ul>
+<li>
+September 18, 2020, by Michael Wetter:<br/>
+Set start value for <code>steBal.hOut</code> so that <code>T_start</code>
+can be used which is not known in that instance.<br/>
+See <a href=\"https://github.com/ibpsa/modelica-ibpsa/issues/1397\">#1397</a>.
+</li>
 <li>
 February 21, 2020, by Michael Wetter:<br/>
 Changed icon to display its operating state.<br/>
